@@ -1,0 +1,14 @@
+corpora:
+  # Paths for the location of files relevant to each corpus.
+  # Each corpus has a path and an index.
+  #   path: the absolute location of the .corpus file
+  #   index: the absolute location of the .freqdist file
+  bnc:
+    path: "/Users/cai/Box Sync/LANGBOOT Project/Corpus Analysis/Model data/Corpora/BNC.corpus"
+    index: "/Users/cai/Box Sync/LANGBOOT Project/Corpus Analysis/Model data/Indexes/BNC.freqdist"
+  subtitles:
+    path: "/Users/cai/Box Sync/LANGBOOT Project/Corpus Analysis/Model data/Corpora/BBC.corpus"
+    index: "/Users/cai/Box Sync/LANGBOOT Project/Corpus Analysis/Model data/Indexes/BBC.freqdist"
+  ukwac:
+    path: "/Users/cai/Box Sync/LANGBOOT Project/Corpus Analysis/Model data/Corpora/UKWAC.corpus"
+    index: "/Users/cai/Box Sync/LANGBOOT Project/Corpus Analysis/Model data/Indexes/UKWAC.freqdist"

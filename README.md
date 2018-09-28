@@ -14,6 +14,7 @@ LDMQ requires Python 3.6+ and the following modules:
 -   `numpy`
 -   `scipy`
 -   `gensim`
+-   `pyyaml`
 -   `matplotlib`
 -   `nltk`
 -   `pandas`
