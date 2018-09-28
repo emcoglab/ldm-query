@@ -34,7 +34,7 @@ These are usually used from the command line something like this:
     
 Finally, once all these modules are installed, you can run LDMQ from the command line like:
 
-    python ldmq
+    python ldmq.py
 
 
 Configuration
@@ -60,26 +60,28 @@ LDMQ can do several things:
 
 In general, the model of usage is as follows:
 
-    python ldmq \
-        <mode> \
+    python ldmq.py \
+        --<mode> \
             --corpus <corpus-name> \
             --model <model-name> <embedding size> <window-radius> \
             --distance <distance-type> \
             --word(-pair) "<first-word>" ("<second-word>")
                        
-where some of the arguments are optional depending on context.  (Here, the backslash \ just "escapes" line breaks in the
+where some of the arguments are optional depending on context.  (Here, the backslashes \ just "escape" line breaks in the
 command line.)  So for example:
 
-    python ldmq frequency --corpus subtitles --word "house"
+    python ldmq.py --frequency --corpus subtitles --word "house"
 
 would look up the frequency of the word "house" in the "BBC subtitles" corpus (giving the answer XXX).
 
-The available modes are:
+The available `<mode>`s are:
 
 -   `frequency`: Returns the frequency a word in a corpus.
 -   `rank`: Returns the rank frequency of a word in a corpus (1 means most frequent).
 -   `vector`: Returns the vector representation of a word in a vector-based LDM.
 -   `compare`: Compares two words using an LDM.
+
+For annoying reasons, `<mode>`s must also be preceded by a `--`.
 
 Each of the available usage modes and options are explained in full, with examples, below.
 
@@ -87,13 +89,13 @@ Each of the available usage modes and options are explained in full, with exampl
 Usage: options
 --------------
 
-Options refer to parts of the command line invocation which are preceded by a double hyphen `--`.  These will always be 
-a double hyphen, followed immediately by the option name, then with extra parameters following it, separated by spaces. 
-For example, to compare the words "cat" and "dog" in the PPMI n-gram model trained on the BNC corpus with window radius 
-3, we would use the command:
+Options refer to parts of the command line invocation after the mode.  These will always be a double hyphen, followed 
+immediately by the option name, then with extra parameters following it, separated by spaces.  For example, to compare 
+the words "cat" and "dog" in the PPMI n-gram model trained on the BNC corpus with window radius 3, we would use the 
+command:
 
-    python ldmq \
-        compare \
+    python ldmq.py \
+        --compare \
             --corpus bnc \
             --model ppmi-ngram 3 \
             --word-pair "cat" "dog"
@@ -102,8 +104,8 @@ which would produce the result XXX.
 
 Options can be given in any order after the mode, so we would get same result by running:
 
-    python ldmq \
-        compare \
+    python ldmq.py \
+        --compare \
             --word-pair "cat" "dog" \
             --model ppmi-ngram 3 \
             --corpus bnc
@@ -192,13 +194,13 @@ Usage: `frequency` mode
 
 Returns the frequency of a word in the specified corpus.
 
-    python ldmq \
-        frequency \
+    python ldmq.py \
+        --frequency \
             --corpus <corpus-name> \
             --word "<word>"
         
-    python ldmq \
-        frequency \
+    python ldmq.py \
+        --frequency \
             --corpus <corpus-name> \
             --words-from-file "<path-to-file>" \
             --output-file "<path-to-file>"
@@ -225,13 +227,13 @@ Usage: `rank` mode
 
 Returns the rank of a word in the specified corpus, by frequency.
 
-    python ldmq \
-        rank \
+    python ldmq.py \
+        --rank \
             --corpus <corpus-name> \
             --word "<word>"
         
-    python ldmq \
-        rank \
+    python ldmq.py \
+        --rank \
             --corpus <corpus-name> \
             --words-from-file "<path-to-file>" \
             --output-file "<path-to-file>"
@@ -256,16 +258,16 @@ Example:
 Usage: `vector` mode
 --------------------
 
-Returns the rank of a word in the specified corpus, by frequency.
+Returns the vector representation of a word in the specified vector-based LDM.
 
-    python ldmq \
-        vector \
+    python ldmq.py \
+        --vector \
             --corpus <corpus-name> \
             --model <model-name> <embedding-size> <window-radius> \
             --word "<word>"
         
-    python ldmq \
-        vector \
+    python ldmq.py \
+        --vector \
             --corpus <corpus-name> \
             --model <model-name> <embedding-size> <window-radius> \
             --words-from-file "<path-to-file>" \
@@ -290,25 +292,25 @@ Example:
 Usage: `compare` mode
 ---------------------
 
-Returns the rank of a word in the specified corpus, by frequency.
+Returns the comparison score between the specified words in the specified LDM.
 
-    python ldmq \
-        compare \
+    python ldmq.py \
+        --compare \
             --corpus <corpus-name> \
             --model <model-name> <embedding-size> <window-radius> \
             --distance <distance-type> \
             --word-pair "<first-word>" "<second-word>"
         
-    python ldmq \
-        compare \
+    python ldmq.py \
+        --compare \
             --corpus <corpus-name> \
             --model <model-name> <embedding-size> <window-radius> \
             --distance <distance-type> \
             --word-pairs-from-file "<path-to-file>" \
             --output-file "<path-to-file>"
         
-    python ldmq \
-        compare \
+    python ldmq.py \
+        --compare \
             --corpus <corpus-name> \
             --model <model-name> <embedding-size> <window-radius> \
             --distance <distance-type> \
