@@ -116,7 +116,8 @@ def run_rank_with_list(wordlist_file: str,
 def run_vector(word: str,
                model: VectorSemanticModel,
                output_file: str):
-
+    if not model.could_load:
+        raise FileNotFoundError("Precomputed model not found")
     model.train(memory_map=True)
     try:
         vector = model.vector_for_word(word)
@@ -133,6 +134,8 @@ def run_vector(word: str,
 def run_vector_with_list(wordlist_file: str,
                          model: VectorSemanticModel,
                          output_file: str):
+    if not model.could_load:
+        raise FileNotFoundError("Precomputed model not found")
     model.train(memory_map=True)
 
     with open(wordlist_file, mode="r") as wf:
@@ -167,6 +170,8 @@ def run_compare(word_1: str, word_2: str,
                 model: DistributionalSemanticModel,
                 distance: DistanceType,
                 output_file: str):
+    if not model.could_load:
+        raise FileNotFoundError("Precomputed model not found")
     model.train(memory_map=True)
 
     comparison = _compare(word_1, word_2, model, distance)
@@ -182,6 +187,8 @@ def run_compare_with_list(wordlist_file: str,
                           model: DistributionalSemanticModel,
                           distance: DistanceType,
                           output_file: str):
+    if not model.could_load:
+        raise FileNotFoundError("Precomputed model not found")
     model.train(memory_map=True)
 
     with open(wordlist_file, mode="r", encoding="utf-8") as wf:
@@ -210,6 +217,8 @@ def run_compare_with_pair_list(wordpair_list_file: str,
                                model: DistributionalSemanticModel,
                                distance: DistanceType,
                                output_file: str):
+    if not model.could_load:
+        raise FileNotFoundError("Precomputed model not found")
     model.train(memory_map=True)
 
     with open(wordpair_list_file, mode="r", encoding="utf-8") as wf:
