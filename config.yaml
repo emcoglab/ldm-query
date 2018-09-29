@@ -1,14 +1,83 @@
 corpora:
   # Paths for the location of files relevant to each corpus.
+  #
   # Each corpus has a path and an index.
+  #
   #   path: the absolute location of the .corpus file
   #   index: the absolute location of the .freqdist file
+
   bnc:
-    path: "/Users/cai/Box Sync/LANGBOOT Project/Corpus Analysis/Model data/Corpora/BNC.corpus"
+    path:  "/Users/cai/Box Sync/LANGBOOT Project/Corpus Analysis/Model data/Corpora/BNC.corpus"
     index: "/Users/cai/Box Sync/LANGBOOT Project/Corpus Analysis/Model data/Indexes/BNC.freqdist"
+
   subtitles:
-    path: "/Users/cai/Box Sync/LANGBOOT Project/Corpus Analysis/Model data/Corpora/BBC.corpus"
+    path:  "/Users/cai/Box Sync/LANGBOOT Project/Corpus Analysis/Model data/Corpora/BBC.corpus"
     index: "/Users/cai/Box Sync/LANGBOOT Project/Corpus Analysis/Model data/Indexes/BBC.freqdist"
+
   ukwac:
-    path: "/Users/cai/Box Sync/LANGBOOT Project/Corpus Analysis/Model data/Corpora/UKWAC.corpus"
+    path:  "/Users/cai/Box Sync/LANGBOOT Project/Corpus Analysis/Model data/Corpora/UKWAC.corpus"
     index: "/Users/cai/Box Sync/LANGBOOT Project/Corpus Analysis/Model data/Indexes/UKWAC.freqdist"
+
+models:
+  # Paths for the location of files relevant to each model
+  # Use the following placeholders:
+  #
+  #   {corpus}    for the corpus name
+  #   {radius}    for the window radius
+  #   {embedding} for the embedding size
+  #
+  # so for example, if for the CBOW model you put:
+  #
+  #   /Volumes/Data/models/{corpus}/CBOW-{embedding}_c={corpus}_r={radius}.npz
+  #
+  # that would mean that the CBOW 200 model trained on the UKWAC corpus with radius 1 was located at
+  #
+  #   /Volumes/Data/models/ukwac/CBOW-200_c=ukwac_r=1.npz
+  #
+  # and the CBOW 50 model trained on the subtitles corpus with radius 10 was located at
+  #
+  #   /Volumes/Data/models/subtitles/CBOW-50=subtitles_r=10.npz
+  #
+  # Obviously, this means you need to store your models in an organised way so that you can use a rubric like this to
+  # find them.
+  #
+  # NOTE: Since n-gram models are based on the same underlying data as their equivalent count models, adjust their file
+  # names appropriately.  So log-ngram has the same file as log-cooccurrence, probability-ratio-ngram has the same file
+  # as probability=ratio and ppmi-ngram has the same file as ppmi.
+
+  # N=gram models
+  log-ngram:
+    path: "/Users/cai/Box Sync/LANGBOOT Project/Corpus Analysis/Model data/Models/{corpus}_r={radius}_log_cooccurrence.npz"
+  probability-ratio-ngram:
+    path: "/Users/cai/Box Sync/LANGBOOT Project/Corpus Analysis/Model data/Models/{corpus}_r={radius}_probability_ratios.npz"
+  ppmi-ngram:
+    path: "/Users/cai/Box Sync/LANGBOOT Project/Corpus Analysis/Model data/Models/{corpus}_r={radius}_ppmi.npz"
+
+  # Count vector models
+  log-cooccurrence:
+    path: "/Users/cai/Box Sync/LANGBOOT Project/Corpus Analysis/Model data/Models/{corpus}_r={radius}_log_cooccurrence.npz"
+  conditional-probability:
+    path: "/Users/cai/Box Sync/LANGBOOT Project/Corpus Analysis/Model data/Models/{corpus}_r={radius}_conditional_probability.npz"
+  probability-ratio:
+    path: "/Users/cai/Box Sync/LANGBOOT Project/Corpus Analysis/Model data/Models/{corpus}_r={radius}_probability_ratios.npz"
+  ppmi:
+    path: "/Users/cai/Box Sync/LANGBOOT Project/Corpus Analysis/Model data/Models/{corpus}_r={radius}_ppmi.npz"
+
+  # Predict vector models
+  skip-gram:
+    path: "/Users/cai/Box Sync/LANGBOOT Project/Corpus Analysis/Model data/Models/{corpus}_r={radius}_s={embedding}_skipgram"
+  cbow:
+    path: "/Users/cai/Box Sync/LANGBOOT Project/Corpus Analysis/Model data/Models/{corpus}_r={radius}_s={embedding}_cbow"
+
+  # If you want to organise or name files by corpora in a way which doesn't match the corpus names above, you can also
+  # specify corpus name substitutions here.
+  #
+  # So for example if you put
+  #
+  #   subtitles: "BBC"
+  #
+  # then anywhere you put {corpus} in the model paths above, instead of "subtitles" going in there, "BBC" would instead.
+  corpus-relabel:
+    bnc:       "BNC"
+    subtitles: "BBC"
+    ukwac:     "UKWAC"

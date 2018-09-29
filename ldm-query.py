@@ -19,6 +19,7 @@ import logging
 import sys
 from enum import Enum, auto
 from os import path
+from typing import Dict
 
 import yaml
 
@@ -101,7 +102,24 @@ class WordMode(Enum):
     WordPairList = auto()
 
 
-if __name__ == '__main__':
+def _get_model_file(config: Dict, model_type: str, corpus: str, radius: int, embedding_size: int) -> str:
+    path_template: str = config["models"][model_type]
+    corpus_relabelling: Dict = config["models"]["corpus-relabel"]
+    corpus_name = (corpus_relabelling[corpus]
+                   if corpus in corpus_relabelling.keys()
+                   else corpus)
+    if embedding_size is not None:
+        return path_template.format(
+            radius=radius,
+            embedding=embedding_size,
+            corpus=corpus_name)
+    else:
+        return path_template.format(
+            radius=radius,
+            corpus=corpus_name)
+
+
+def main():
 
     # Config
     with open(_config_path, mode="r", encoding="utf-8") as config_file:
@@ -264,7 +282,6 @@ if __name__ == '__main__':
 
     # Get word_mode
     # and words or path
-    word_mode: WordMode.SingleWord
     if _option_used("word"):
         word_mode = WordMode.SingleWord
         words_or_path = args.word
@@ -294,7 +311,6 @@ if __name__ == '__main__':
         raise NotImplementedError()
     radius = int(args.window_radius) if "window_radius" in vars(args) else None
 
-    distance: DistanceType
     if not _option_used("distance"):
         distance = None
     elif args.distance.lower() == "cosine":
@@ -348,34 +364,35 @@ if __name__ == '__main__':
 
     # region Run appropriate function based on mode
 
+    model_file = _get_model_file(config, model_type, corpus_name, radius, embedding_size)
     if mode is Mode.Frequency:
         if word_mode is WordMode.SingleWord:
-            run_frequency(words_or_path, freq_dist, output_file)
+            run_frequency(words_or_path, freq_dist, output_file, model_file)
         elif word_mode is WordMode.SingleWordList:
-            run_frequency_with_list(words_or_path, freq_dist, corpus, output_file)
+            run_frequency_with_list(words_or_path, freq_dist, corpus, output_file, model_file)
         else:
             raise NotImplementedError()
     elif mode is Mode.Rank:
         if word_mode is WordMode.SingleWord:
-            run_rank(words_or_path, freq_dist, output_file)
+            run_rank(words_or_path, freq_dist, output_file, model_file)
         elif word_mode is WordMode.SingleWordList:
-            run_rank_with_list(words_or_path, freq_dist, corpus, output_file)
+            run_rank_with_list(words_or_path, freq_dist, corpus, output_file, model_file)
         else:
             raise NotImplementedError()
     elif mode is Mode.Vector:
         if word_mode is WordMode.SingleWord:
-            run_vector(words_or_path, model, output_file)
+            run_vector(words_or_path, model, output_file, model_file)
         elif word_mode is WordMode.SingleWordList:
-            run_vector_with_list(words_or_path, model, output_file)
+            run_vector_with_list(words_or_path, model, output_file, model_file)
         else:
             raise NotImplementedError()
     elif mode is Mode.Compare:
         if word_mode is WordMode.WordPair:
-            run_compare(words_or_path[0], words_or_path[1], model, distance, output_file)
+            run_compare(words_or_path[0], words_or_path[1], model, distance, output_file, model_file)
         elif word_mode is WordMode.SingleWordList:
-            run_compare_with_list(words_or_path, model, distance, output_file)
+            run_compare_with_list(words_or_path, model, distance, output_file, model_file)
         elif word_mode is WordMode.WordPairList:
-            run_compare_with_pair_list(words_or_path, model, distance, output_file)
+            run_compare_with_pair_list(words_or_path, model, distance, output_file, model_file)
         else:
             raise NotImplementedError()
     else:
@@ -384,3 +401,7 @@ if __name__ == '__main__':
     # endregion
 
     sys.exit(0)
+
+
+if __name__ == '__main__':
+    main()

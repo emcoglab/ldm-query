@@ -14,6 +14,7 @@ caiwingfield.net
 2018
 ---------------------------
 """
+
 from numpy import nan
 from pandas import DataFrame, read_csv
 
@@ -115,10 +116,9 @@ def run_rank_with_list(wordlist_file: str,
 
 def run_vector(word: str,
                model: VectorSemanticModel,
-               output_file: str):
-    if not model.could_load:
-        raise FileNotFoundError("Precomputed model not found")
-    model.train(memory_map=True)
+               output_file: str,
+               model_file: str):
+    model.train(memory_map=True, force_load_from_file=model_file)
     try:
         vector = model.vector_for_word(word)
 
@@ -133,10 +133,9 @@ def run_vector(word: str,
 
 def run_vector_with_list(wordlist_file: str,
                          model: VectorSemanticModel,
-                         output_file: str):
-    if not model.could_load:
-        raise FileNotFoundError("Precomputed model not found")
-    model.train(memory_map=True)
+                         output_file: str,
+                         model_file: str):
+    model.train(memory_map=True, force_load_from_file=model_file)
 
     with open(wordlist_file, mode="r") as wf:
         word_list = [l.strip().lower() for l in wf]
@@ -169,10 +168,9 @@ def _compare(word_1, word_2, model: DistributionalSemanticModel, distance: Dista
 def run_compare(word_1: str, word_2: str,
                 model: DistributionalSemanticModel,
                 distance: DistanceType,
-                output_file: str):
-    if not model.could_load:
-        raise FileNotFoundError("Precomputed model not found")
-    model.train(memory_map=True)
+                output_file: str,
+                model_file: str):
+    model.train(memory_map=True, force_load_from_file=model_file)
 
     comparison = _compare(word_1, word_2, model, distance)
 
@@ -186,10 +184,11 @@ def run_compare(word_1: str, word_2: str,
 def run_compare_with_list(wordlist_file: str,
                           model: DistributionalSemanticModel,
                           distance: DistanceType,
-                          output_file: str):
+                          output_file: str,
+                          model_file: str):
     if not model.could_load:
         raise FileNotFoundError("Precomputed model not found")
-    model.train(memory_map=True)
+    model.train(memory_map=True, force_load_from_file=model_file)
 
     with open(wordlist_file, mode="r", encoding="utf-8") as wf:
         word_list = [l.strip().lower() for l in wf]
@@ -216,10 +215,11 @@ def run_compare_with_list(wordlist_file: str,
 def run_compare_with_pair_list(wordpair_list_file: str,
                                model: DistributionalSemanticModel,
                                distance: DistanceType,
-                               output_file: str):
+                               output_file: str,
+                               model_file: str):
     if not model.could_load:
         raise FileNotFoundError("Precomputed model not found")
-    model.train(memory_map=True)
+    model.train(memory_map=True, force_load_from_file=model_file)
 
     with open(wordpair_list_file, mode="r", encoding="utf-8") as wf:
         wordpair_list_df = read_csv(wf, header=False, index_col=None,
