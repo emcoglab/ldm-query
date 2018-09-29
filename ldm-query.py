@@ -15,6 +15,7 @@ caiwingfield.net
 ---------------------------
 """
 import argparse
+import logging
 import sys
 from enum import Enum, auto
 from os import path
@@ -28,6 +29,12 @@ from ldm.core.model.count import LogCoOccurrenceCountModel, ConditionalProbabili
 from ldm.core.model.ngram import LogNgramModel, ProbabilityRatioNgramModel, PPMINgramModel
 from ldm.core.model.predict import SkipGramModel, CbowModel
 from ldm.core.utils.maths import DistanceType
+from operation_modes import run_frequency, run_frequency_with_list, run_rank, run_rank_with_list, run_vector, \
+    run_vector_with_list, run_compare, run_compare_with_list, run_compare_with_pair_list
+
+# Suppress logging
+logger = logging.getLogger('my-logger')
+logger.propagate = False
 
 _corpora = {
     "bnc": "BNC",
@@ -131,6 +138,7 @@ if __name__ == '__main__':
         mode_subparser.add_argument("--output-file",
                                     type=str,
                                     required=False,
+                                    dest="output_file",
                                     metavar="PATH",
                                     help="Write the output to this file.  Will overwrite existing files.")
 
@@ -285,12 +293,15 @@ if __name__ == '__main__':
         raise NotImplementedError()
 
     # Get corpus and freqdist
-    corpus_name = args.corpus.lower()
+    corpus_name = args.corpus
     corpus: CorpusMetadata = CorpusMetadata(
         name=_corpora[corpus_name],
         path=config["corpora"][corpus_name]["path"],
         freq_dist_path=config["corpora"][corpus_name]["index"])
     freq_dist: FreqDist = FreqDist.load(corpus.freq_dist_path)
+
+    # Get output file
+    output_file = args.output_file
 
     # Build model
     if model_type is None:
@@ -316,6 +327,8 @@ if __name__ == '__main__':
         model = SkipGramModel(corpus, radius, embedding_size)
     elif model_type == "cbow":
         model = CbowModel(corpus, radius, embedding_size)
+    else:
+        raise NotImplementedError()
 
     # endregion
 
@@ -323,32 +336,32 @@ if __name__ == '__main__':
 
     if mode is Mode.Frequency:
         if word_mode is WordMode.SingleWord:
-            run_frequency()
+            run_frequency(words_or_path, freq_dist, output_file)
         elif word_mode is WordMode.SingleWordList:
-            run_frequency_with_list()
+            run_frequency_with_list(words_or_path, freq_dist, corpus, output_file)
         else:
             raise NotImplementedError()
     elif mode is Mode.Rank:
         if word_mode is WordMode.SingleWord:
-            run_rank()
+            run_rank(words_or_path, freq_dist, output_file)
         elif word_mode is WordMode.SingleWordList:
-            run_rank_with_list()
+            run_rank_with_list(words_or_path, freq_dist, corpus, output_file)
         else:
             raise NotImplementedError()
     elif mode is Mode.Vector:
         if word_mode is WordMode.SingleWord:
-            run_vector()
+            run_vector(words_or_path, model, output_file)
         elif word_mode is WordMode.SingleWordList:
-            run_vector_with_list()
+            run_vector_with_list(words_or_path, model, output_file)
         else:
             raise NotImplementedError()
     elif mode is Mode.Compare:
         if word_mode is WordMode.WordPair:
-            run_compare()
+            run_compare(words_or_path[0], words_or_path[1], model, distance, output_file)
         elif word_mode is WordMode.SingleWordList:
-            run_compare_with_list()
+            run_compare_with_list(words_or_path, model, distance, output_file)
         elif word_mode is WordMode.WordPairList:
-            run_compare_with_pair_list()
+            run_compare_with_pair_list(words_or_path, model, distance, output_file)
         else:
             raise NotImplementedError()
     else:
