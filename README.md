@@ -72,9 +72,9 @@ In general, the model of usage is as follows:
 where some of the arguments are optional depending on context.  (Here, the backslashes \ just "escape" line breaks in the
 command line.)  So for example:
 
-    python ldm-query.py --frequency --corpus subtitles --word "house"
+    python ldm-query.py frequency --corpus subtitles --word "house"
 
-would look up the frequency of the word "house" in the "BBC subtitles" corpus (giving the answer XXX).
+would look up the frequency of the word "house" in the "BBC subtitles" corpus (giving the answer 134711).
 
 The available `<mode>`s are:
 
@@ -224,7 +224,13 @@ Output:
     
 Example:
 
+	$> python ldm-query.py frequency --corous subtitles --word "house"
+	134711
 
+	$> python ldm-query.py frequency --corpus subtitles --words-from-file "/Users/cai/Desktop/wordlist.txt"
+	house: 134711
+	cat: 13241
+	hasdfasdsfasdfjkas: 0
 
 Usage: `rank` mode
 ------------------
@@ -258,6 +264,13 @@ Output:
     
 Example:
 
+	$> python ldm-query.py frequency --corous subtitles --word "house"
+	176
+
+	$> python ldm-query.py frequency --corpus subtitles --words-from-file "/Users/cai/Desktop/wordlist.txt"
+	house: 176
+	cat: 1304
+	hasdfasdsfasdfjkas: None
 
 Usage: `vector` mode
 --------------------
