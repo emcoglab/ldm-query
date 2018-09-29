@@ -62,9 +62,10 @@ LDMQ can do several things:
 In general, the model of usage is as follows:
 
     python ldmq.py \
-        --<mode> \
+        <mode> \
             --corpus <corpus-name> \
-            --model <model-name> <embedding size> <window-radius> \
+            --model <model-name> [<embedding size>] \
+            --radius <window-radius> \
             --distance <distance-type> \
             --word(-pair) "<first-word>" ("<second-word>")
                        
@@ -82,8 +83,6 @@ The available `<mode>`s are:
 -   `vector`: Returns the vector representation of a word in a vector-based LDM.
 -   `compare`: Compares two words using an LDM.
 
-For annoying reasons, `<mode>`s must also be preceded by a `--`.
-
 Each of the available usage modes and options are explained in full, with examples, below.
 
 
@@ -96,9 +95,10 @@ the words "cat" and "dog" in the PPMI n-gram model trained on the BNC corpus wit
 command:
 
     python ldmq.py \
-        --compare \
+        compare \
             --corpus bnc \
-            --model ppmi-ngram 3 \
+            --model ppmi-ngram \
+            --radius 3 \
             --word-pair "cat" "dog"
 
 which would produce the result XXX.
@@ -106,9 +106,10 @@ which would produce the result XXX.
 Options can be given in any order after the mode, so we would get same result by running:
 
     python ldmq.py \
-        --compare \
+        compare \
             --word-pair "cat" "dog" \
-            --model ppmi-ngram 3 \
+            --model ppmi-ngram \
+            --radius 3 \
             --corpus bnc
 
 Some options can be used with several usage modes (such as `--corpus`, which is used with every mode), and some are 
@@ -123,7 +124,7 @@ These are all the options, what they mean, what values they can take, and what m
     -   `subtitles` to use the 200-million-word BBC Subtitles corpus.
     -   `ukwac` to use the 2-billion-word UKWAC corpus.
     
--   `--model <model-name> <embedding-size> <window-radius>`: The specification of the LDM to be used.
+-   `--model <model-name> [<embedding-size>]`: The specification of the LDM to be used.
     Required for `vector` and `compare` modes.
     The permissible values of `<model-name>` are:
     -   N-gram models:
@@ -139,18 +140,20 @@ These are all the options, what they mean, what values they can take, and what m
         -   `skip-gram`: The skip-gram model from word2vec.
         -   `cbow`: The continuous bag of words (CBOW) model from word2vec.
         
-    Following the model name, numbers are given to specify the window radius (for all models) and the embedding size 
-    (for predict vector models only).  If two numbers are given, the first will be interpreted as an embedding size and 
-    the second as a radius, so for example
+    Following the model name, a number is given to specify the embedding size (for predict vector models only).
     
-        python ldmq compare --word-pair "cat" "dog" --corpus bnc --distance cosine --model cbow 300 5
+        python ldmq compare --word-pair "cat" "dog" --corpus bnc --distance cosine --model cbow 300 --radius 5
         
     would compare the words "cat" and "dog" using cosine distance using the CBOW model with embedding size 300 and 
     window radius 5, trained on the BNC.  Whereas
     
-        python ldmq compare --word-pair "cat" "dog" --corpus bnc --distance cosine --model ppmi 5
+        python ldmq compare --word-pair "cat" "dog" --corpus bnc --distance cosine --model ppmi --radius 5
         
     would make the same comparison using the PPMI model with window radius 5.
+    
+-   `--radius <window-radius>`: The context window radius used in the model.
+    Required whenever `--model` is used.
+    The permissible values of `<window-radius>` are `1`, `3`, `5`, or `10`.
         
 -   `--distance <distance-type>`: The distance type for comparing vectors.
     Required for `compare` modes when (and only when) the `--model` is a count vector model or a predict vector model 
@@ -196,12 +199,12 @@ Usage: `frequency` mode
 Returns the frequency of a word in the specified corpus.
 
     python ldmq.py \
-        --frequency \
+        frequency \
             --corpus <corpus-name> \
             --word "<word>"
         
     python ldmq.py \
-        --frequency \
+        frequency \
             --corpus <corpus-name> \
             --words-from-file "<path-to-file>" \
             --output-file "<path-to-file>"
@@ -229,12 +232,12 @@ Usage: `rank` mode
 Returns the rank of a word in the specified corpus, by frequency.
 
     python ldmq.py \
-        --rank \
+        rank \
             --corpus <corpus-name> \
             --word "<word>"
         
     python ldmq.py \
-        --rank \
+        rank \
             --corpus <corpus-name> \
             --words-from-file "<path-to-file>" \
             --output-file "<path-to-file>"
@@ -262,13 +265,13 @@ Usage: `vector` mode
 Returns the vector representation of a word in the specified vector-based LDM.
 
     python ldmq.py \
-        --vector \
+        vector \
             --corpus <corpus-name> \
             --model <model-name> <embedding-size> <window-radius> \
             --word "<word>"
         
     python ldmq.py \
-        --vector \
+        vector \
             --corpus <corpus-name> \
             --model <model-name> <embedding-size> <window-radius> \
             --words-from-file "<path-to-file>" \
@@ -296,14 +299,14 @@ Usage: `compare` mode
 Returns the comparison score between the specified words in the specified LDM.
 
     python ldmq.py \
-        --compare \
+        compare \
             --corpus <corpus-name> \
             --model <model-name> <embedding-size> <window-radius> \
             --distance <distance-type> \
             --word-pair "<first-word>" "<second-word>"
         
     python ldmq.py \
-        --compare \
+        compare \
             --corpus <corpus-name> \
             --model <model-name> <embedding-size> <window-radius> \
             --distance <distance-type> \
@@ -311,7 +314,7 @@ Returns the comparison score between the specified words in the specified LDM.
             --output-file "<path-to-file>"
         
     python ldmq.py \
-        --compare \
+        compare \
             --corpus <corpus-name> \
             --model <model-name> <embedding-size> <window-radius> \
             --distance <distance-type> \

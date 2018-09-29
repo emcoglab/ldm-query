@@ -14,16 +14,19 @@ caiwingfield.net
 2018
 ---------------------------
 """
+import argparse
 import sys
 from enum import Enum, auto
 from os import path
-import argparse
 
 import yaml
-from pandas import DataFrame, read_csv
 
 from ldm.core.corpus.corpus import CorpusMetadata
-from ldm.core.model.base import DistributionalSemanticModel
+from ldm.core.corpus.indexing import FreqDist
+from ldm.core.model.count import LogCoOccurrenceCountModel, ConditionalProbabilityModel, ProbabilityRatioModel, \
+    PPMIModel
+from ldm.core.model.ngram import LogNgramModel, ProbabilityRatioNgramModel, PPMINgramModel
+from ldm.core.model.predict import SkipGramModel, CbowModel
 from ldm.core.utils.maths import DistanceType
 
 _corpora = {
@@ -47,8 +50,12 @@ _models = [
     "cbow",
 ]
 
+_embedding_sizes = [50, 100, 200, 300, 500]
+_window_radii = [1, 3, 5, 10]
+
 _readme_path = path.join(path.dirname(path.realpath(__file__)), 'README.md')
 _config_path = path.join(path.dirname(path.realpath(__file__)), 'config.yaml')
+
 
 class Mode(Enum):
     """The main invocation mode of the program."""
@@ -74,292 +81,278 @@ class Mode(Enum):
     def option(self) -> str:
         return '--' + self.name
 
+
 class WordMode(Enum):
+    """How words will be supplied"""
+    # One word from CLI
     SingleWord = auto()
+    # List of words from file
     SingleWordList = auto()
+    # Word pair from CLI
     WordPair = auto()
+    # List of word pairs from file
     WordPairList = auto()
-
-class LDMQ:
-
-    def __init__(self,
-                 mode: Mode,
-                 word_mode: WordMode,
-                 corpus: str,
-                 model: DistributionalSemanticModel = None,
-                 distance: DistanceType = None,
-                 word_or_words_or_filename = None,
-                 from_file: bool = False,
-                 output_file_path = None,
-                 ):
-
-        # Config
-        with open(_config_path, mode="r", encoding="utf-8") as config_file:
-            config = yaml.load(config_file)
-
-        self.mode: Mode = mode
-        self.word_mode: WordMode
-
-        self.corpus: CorpusMetadata = CorpusMetadata(
-            name=_corpora[corpus],
-            path=config["corpora"][corpus]["path"],
-            freq_dist_path=config["corpora"][corpus]["index"])
-
-        self.model = model
-
-        self.distance: DistanceType = distance
-
-        self.in_file_path: str = word_or_words_or_filename if from_file else None
-
-        self.word_or_word_pair = word_or_words_or_filename if not from_file else None
-
-        self.out_file_path: str = output_file_path
-
-
-    def run(self):
-
-        if word_mode is WordMode.SingleWord:
-            word = self.word_or_word_pair
-            if mode is Mode.Frequency:
-                ...
-            elif mode is Mode.Rank:
-                ...
-            elif mode is Mode.Vector:
-                ...
-            else:
-                raise NotImplementedError()
-        elif word_mode is WordMode.WordPair:
-            word_1 = self.word_or_word_pair[0]
-            word_2 = self.word_or_word_pair[1]
-            if mode is Mode.Frequency:
-                ...
-            elif mode is Mode.Rank:
-                ...
-            elif mode is Mode.Vector:
-                ...
-            else:
-                raise NotImplementedError()
-        elif word_mode is WordMode.SingleWordList:
-            with open(self.in_file_path, mode="r") as in_file:
-                word_list = [line.strip() for line in in_file]
-            if mode is Mode.Frequency:
-                ...
-            elif mode is Mode.Rank:
-                ...
-            elif mode is Mode.Vector:
-                ...
-            else:
-                raise NotImplementedError()
-        elif word_mode is WordMode.WordPairList:
-            with open(self.in_file_path, mode="r") as in_file:
-                word_list_df: DataFrame = read_csv(in_file, header=None)
-                word_pair_list = [
-                    (row[0], row[1])
-                    for row in word_list_df.iterrows()
-                ]
-            if mode is Mode.Frequency:
-                ...
-            elif mode is Mode.Rank:
-                ...
-            elif mode is Mode.Vector:
-                ...
-            else:
-                raise NotImplementedError()
-        else:
-            raise NotImplementedError()
 
 
 if __name__ == '__main__':
+
+    # Config
+    with open(_config_path, mode="r", encoding="utf-8") as config_file:
+        config = yaml.load(config_file)
 
     # region Set up args
 
     argparser = argparse.ArgumentParser(
         description="Query corpora and linguistic distributional models. See README.md for more info.")
 
-    argparser_mode = argparser.add_mutually_exclusive_group()
-    for ldmq_mode in Mode:
-        argparser_mode.add_argument(ldmq_mode.option, action="store_true")
+    # Add mode parsers
+    mode_subparsers = argparser.add_subparsers(dest="mode")
+    mode_subparsers.required = True
+    mode_frequency_parser = mode_subparsers.add_parser(
+        Mode.Frequency.name,
+        help="Look up frequency of word in corpus")
+    mode_rank_parser = mode_subparsers.add_parser(
+        Mode.Rank.name,
+        help="Look up rank of word in corpus by frequency")
+    mode_vector_parser = mode_subparsers.add_parser(
+        Mode.Vector.name,
+        help="Look up the vector representation of a model in a model.")
+    mode_compare_parser = mode_subparsers.add_parser(
+        Mode.Compare.name,
+        help="Compare word pairs using a model.")
 
-    argparser_wordmode = argparser.add_mutually_exclusive_group()
-    argparser_wordmode.add_argument("--word",
-                           type=str,
-                           required=False,
-                           help="The word to look up.")
-    argparser_wordmode.add_argument("--word-pair",
-                           type=str,
-                           nargs=2,
-                           required=False,
-                           metavar=('FIRST WORD', 'SECOND WORD'),
-                           help="The words to compare.")
-    argparser_wordmode.add_argument("--words-from-file",
-                           type=str,
-                           required=False,
-                           metavar="PATH",
-                           help="The word to look up or compare.")
-    argparser_wordmode.add_argument("--word-pairs-from-file",
-                           type=str,
-                           required=False,
-                           metavar="PATH",
-                           help="The word pairs to compare.")
+    # Add corpus and outfile options to all modes
+    for mode_subparser in [mode_frequency_parser, mode_rank_parser, mode_vector_parser, mode_compare_parser]:
+        mode_subparser.add_argument("--corpus",
+                                    type=str,
+                                    choices=_corpora.keys(),
+                                    required=True,
+                                    help="The name of the corpus.")
+        mode_subparser.add_argument("--output-file",
+                                    type=str,
+                                    required=False,
+                                    metavar="PATH",
+                                    help="Write the output to this file.  Will overwrite existing files.")
 
-    argparser.add_argument("--corpus",
-                           type=str,
-                           choices=_corpora.keys(),
-                           required=True,
-                           help="The name of the corpus.")
-    argparser.add_argument("--model",
-                           type=str,
-                           choices=_models,
-                           nargs="+",
-                           required=False,
-                           metavar=("MODEL", "[EMBEDDING] RADIUS"),
-                           help="The model to use.")
-    argparser.add_argument("--distance",
-                           type=str,
-                           choices=[dt.name for dt in DistanceType],
-                           required=False,
-                           help="The distace type to use.")
+    # Add single word options to relevant parsers
+    for mode_subparser in [mode_frequency_parser, mode_rank_parser, mode_vector_parser]:
+        wordmode_group = mode_subparser.add_mutually_exclusive_group()
+        wordmode_group.add_argument("--word",
+                                    type=str,
+                                    required=False,
+                                    help="The word to look up.")
+        wordmode_group.add_argument("--words-from-file",
+                                    type=str,
+                                    dest="words_from_file",
+                                    required=False,
+                                    metavar="PATH",
+                                    help="The word to look up or compare.")
 
+    # Add all multi=word options to compare parser
+    wordmode_group = mode_compare_parser.add_mutually_exclusive_group()
+    wordmode_group.add_argument("--words-from-file",
+                                type=str,
+                                dest="words_from_file",
+                                required=False,
+                                metavar="PATH",
+                                help="The word to look up or compare.")
+    wordmode_group.add_argument("--word-pair",
+                                type=str,
+                                dest="word_pair",
+                                nargs=2,
+                                required=False,
+                                metavar=('FIRST WORD', 'SECOND WORD'),
+                                help="The words to compare.")
+    wordmode_group.add_argument("--word-pairs-from-file",
+                                type=str,
+                                dest="word_pairs_from_file",
+                                required=False,
+                                metavar="PATH",
+                                help="The word pairs to compare.")
 
-    argparser.add_argument("--output-file",
-                           type=str,
-                           required=False,
-                           metavar="PATH",
-                           help="Write the output to this file.  Will overwrite existing files.")
+    # Add model arguments to relevant parsers
+    for mode_subparser in [mode_vector_parser, mode_compare_parser]:
+        mode_subparser.add_argument("--model",
+                                    type=str,
+                                    nargs="+",
+                                    required=True,
+                                    dest="model",
+                                    metavar=("MODEL", "EMBEDDING"),
+                                    help="The model specification to use.")
+        mode_subparser.add_argument("--window-radius",
+                                    type=int,
+                                    choices=_window_radii,
+                                    dest="window_radius",
+                                    required=True,
+                                    help="The window radius to use.")
+        mode_subparser.add_argument("--distance",
+                                    type=str,
+                                    choices=[dt.name for dt in DistanceType],
+                                    required=False,
+                                    help="The distance type to use.")
 
     # endregion
 
-    # region Parse args
-
     args = argparser.parse_args()
 
-    # Get mode
-    if args.frequency:
+    # region Get mode
+
+    if args.mode == Mode.Frequency.name:
         mode = Mode.Frequency
-    elif args.rank:
+    elif args.mode == Mode.Rank.name:
         mode = Mode.Rank
-    elif args.vector:
+    elif args.mode == Mode.Vector.name:
         mode = Mode.Vector
-    elif args.compare:
+    elif args.mode == Mode.Compare.name:
         mode = Mode.Compare
     else:
         raise NotImplementedError()
 
+    # region Validate args
+
+    # Validate model params
+    if "model" in vars(args).keys():
+
+        # For predict models, embedding size is required
+        if args.model[0].lower() in ["cbow", "skip-gram"]:
+            if len(args.model) == 1:
+                argparser.error("Please specify embedding size when using predict models")
+            elif int(args.model[1]) not in _embedding_sizes:
+                    argparser.error(f"Invalid embedding size {args.model[1]}, "
+                                    f"Please select an embedding size from the list {_embedding_sizes}")
+
+        # For count and ngram models, embedding size is forbidden
+        else:
+            if len(args.model) > 1:
+                argparser.error("Embedding size invalid for count and n-gram models")
+
+    # Validate distance measure
+    if mode is Mode.Compare:
+        # All but n-grams require distance
+        if args.model in ["log-ngram", "probability-ratio-ngram", "ppmi-ngram"]:
+            if args.distance is not None:
+                argparser.error("Distance not valid for n-gram models")
+        else:
+            if args.distance is None:
+                argparser.error("Distance is required for vector-based models.")
+
+    # endregion
+
+    # region Interpret args
+
     # Get word_mode
     # and words or path
     word_mode: WordMode.SingleWord
-    if args["word"] is not None:
+    if args.word is not None:
         word_mode = WordMode.SingleWord
-        words_or_path = args["word"]
-    elif args["word-pair"] is not None:
+        words_or_path = args.word
+    elif args.word_pair is not None:
         word_mode = WordMode.WordPair
-        words_or_path = args["word-pair"]
-    elif args["words-from-file"] is not None:
+        words_or_path = args.word_pair
+    elif args.words_from_file is not None:
         word_mode = WordMode.SingleWordList
-        words_or_path = args["words-from-file"]
-    elif args["word-pairs-from-file"] is not None:
+        words_or_path = args.words_from_file
+    elif args.word_pairs_from_file is not None:
         word_mode = WordMode.WordPairList
-        words_or_path = args["word-pairs-from-file"]
+        words_or_path = args.word_pairs_from_file
     else:
         raise NotImplementedError()
+
+    # get model spec
+    if "model" not in vars(args).keys():
+        model_type = None
+        embedding_size = None
+    elif len(args.model) == 1:
+        model_type = args.model[0]
+        embedding_size = None
+    elif len(args.model) == 2:
+        model_type = args.model[0]
+        embedding_size = int(args.model[1])
+    else:
+        raise NotImplementedError()
+    radius = int(args.window_radius)
 
     distance: DistanceType
     if args.distance is None:
         distance = None
-    elif args.distance.lower() is "cosine":
+    elif args.distance.lower() == "cosine":
         distance = DistanceType.cosine
-    elif args.distance.lower() is "correlation":
+    elif args.distance.lower() == "correlation":
         distance = DistanceType.correlation
-    elif args.distance.lower() is "euclidean":
+    elif args.distance.lower() == "euclidean":
         distance = DistanceType.Euclidean
     else:
         raise NotImplementedError()
 
+    # Get corpus and freqdist
+    corpus_name = args.corpus.lower()
+    corpus: CorpusMetadata = CorpusMetadata(
+        name=_corpora[corpus_name],
+        path=config["corpora"][corpus_name]["path"],
+        freq_dist_path=config["corpora"][corpus_name]["index"])
+    freq_dist: FreqDist = FreqDist.load(corpus.freq_dist_path)
 
-    # Get corpus
-    corpus = args.corpus.lower()
-
-    # Get model params
-    if args.model is None:
-        model_type = None
-        embedding_size = None
-        radius = None
-    elif len(args.model) == 0:
-        model_type = None
-        embedding_size = None
-        radius = None
-        argparser.error("Please specify model.")
-    elif len(args.model) == 1:
-        model_type = None
-        embedding_size = None
-        radius = None
-        argparser.error("Please specify window radius")
-    elif len(args.model) == 2:
-        model_type = args.model[0]
-        radius = int(args.model[1])
-        embedding_size = None
-    elif len(args.model) == 3:
-        model_type = args.model[0]
-        embedding_size = int(args.model[1])
-        radius = int(args.model[3])
-    else:
-        raise NotImplementedError()
-
-    # Validate options
-
-    if mode is Mode.Frequency:
-        if word_mode is WordMode.WordPair or word_mode is WordMode.WordPairList:
-            argparser.error("Only use --word or --words-from-file in --frequency mode.")
-        if model_type is not None:
-            argparser.error("Not valid to use mode in --frequency mode.")
-
-    elif mode is Mode.Rank:
-        if word_mode is WordMode.WordPair or word_mode is WordMode.WordPairList:
-            argparser.error("Only use --word or --words-from-file in --rank mode.")
-    elif mode is Mode.Vector:
-        if word_mode is WordMode.WordPair or word_mode is WordMode.WordPairList:
-            argparser.error("Only use --word or --words-from-file in --vector mode.")
-    elif mode is Mode.Compare:
-        if word_mode is WordMode.SingleWord or word_mode is WordMode.SingleWordList:
-            argparser.error("Only use --word-pair or --word-pairs-from-file in --frequency mode.")
-    else:
-        raise NotImplementedError()
-
-    # Build and validate model
+    # Build model
     if model_type is None:
         model = None
-    else:
-        # Validate embedding size
-        if (args.model[0] is "log-ngram"
-                or args.model[0] is "probability-ratio-ngram"
-                or args.model[0] is "ppmi-ngram"
-                or args.model[0] is "log-cooccurrence"
-                or args.model[0] is "conditional-probability"
-                or args.model[0] is "probability-ratio"
-                or args.model[0] is "ppmi"):
-            if embedding_size is not None:
-                argparser.error("Embedding size specified but not valid with N-gram or count models")
-                
-        if
-            ...
-        elif args.model[0] is "skip-gram":
-            ...
-        elif args.model[0] is "cbow":
-            ...
-        else:
-            raise NotImplementedError()
+    # N-gram models
+    elif model_type == "log-ngram":
+        model = LogNgramModel(corpus, radius, freq_dist)
+    elif model_type == "probability-ratio-ngram":
+        model = ProbabilityRatioNgramModel(corpus, radius, freq_dist)
+    elif model_type == "ppmi-ngram":
+        model = PPMINgramModel(corpus, radius, freq_dist)
+    # Count vector models:
+    elif model_type == "log-cooccurrence":
+        model = LogCoOccurrenceCountModel(corpus, radius, freq_dist)
+    elif model_type == "conditional-probability":
+        model = ConditionalProbabilityModel(corpus, radius, freq_dist)
+    elif model_type == "probability-ratio":
+        model = ProbabilityRatioModel(corpus, radius, freq_dist)
+    elif model_type == "ppmi":
+        model = PPMIModel(corpus, radius, freq_dist)
+    # Predict vector models:
+    elif model_type == "skip-gram":
+        model = SkipGramModel(corpus, radius, embedding_size)
+    elif model_type == "cbow":
+        model = CbowModel(corpus, radius, embedding_size)
 
     # endregion
 
-    # region Start application
+    # region Run appropriate function based on mode
 
-    app = LDMQ(
-        mode=mode,
-        word_mode=word_mode,
-        corpus=corpus,
-        )
-
-    app.run()
+    if mode is Mode.Frequency:
+        if word_mode is WordMode.SingleWord:
+            run_frequency()
+        elif word_mode is WordMode.SingleWordList:
+            run_frequency_with_list()
+        else:
+            raise NotImplementedError()
+    elif mode is Mode.Rank:
+        if word_mode is WordMode.SingleWord:
+            run_rank()
+        elif word_mode is WordMode.SingleWordList:
+            run_rank_with_list()
+        else:
+            raise NotImplementedError()
+    elif mode is Mode.Vector:
+        if word_mode is WordMode.SingleWord:
+            run_vector()
+        elif word_mode is WordMode.SingleWordList:
+            run_vector_with_list()
+        else:
+            raise NotImplementedError()
+    elif mode is Mode.Compare:
+        if word_mode is WordMode.WordPair:
+            run_compare()
+        elif word_mode is WordMode.SingleWordList:
+            run_compare_with_list()
+        elif word_mode is WordMode.WordPairList:
+            run_compare_with_pair_list()
+        else:
+            raise NotImplementedError()
+    else:
+        raise NotImplementedError()
 
     # endregion
 
