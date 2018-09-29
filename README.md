@@ -1,7 +1,7 @@
-LDMQ: query corpora and linguistic distributional models
+LDM-Query: query corpora and linguistic distributional models
 ========================================================
 
-LDMQ is a Python program which lets you query corpora and linguistic distributional models (LDMs).
+LDM-Query is a Python program which lets you query corpora and linguistic distributional models (LDMs).
 
 For now it is controlled using a command line interface, and requires you to install Python and a few modules.
 
@@ -9,7 +9,7 @@ For now it is controlled using a command line interface, and requires you to ins
 Installation
 ------------
 
-LDMQ requires Python 3.6+ and the following modules:
+LDM-Query requires Python 3.6+ and the following modules:
 
 -   `numpy`
 -   `scipy`
@@ -33,15 +33,15 @@ These are usually used from the command line something like this:
     conda install scipy
     ...
     
-Finally, once all these modules are installed, you can run LDMQ from the command line like:
+Finally, once all these modules are installed, you can run LDM-Query from the command line like:
 
-    python ldmq.py
+    python ldm-query.py
 
 
 Configuration
 -------------
 
-Before LDMQ can be properly used, it must be configured so it knows where the files containing the corpora and LDMs are 
+Before LDM-Query can be properly used, it must be configured so it knows where the files containing the corpora and LDMs are 
 stored on your computer.
 
 These are set in the file `config.yaml`, which is a text file in [YAML][2] format.  Comments in that file should explain
@@ -51,7 +51,7 @@ to set your preferences.
 Usage: overview
 ---------------
 
-LDMQ can do several things:
+LDM-Query can do several things:
 
 -   Count occurrences of a token within a corpus
 -   Look up the rank frequency of a token
@@ -61,7 +61,7 @@ LDMQ can do several things:
 
 In general, the model of usage is as follows:
 
-    python ldmq.py \
+    python ldm-query.py \
         <mode> \
             --corpus <corpus-name> \
             --model <model-name> [<embedding size>] \
@@ -72,7 +72,7 @@ In general, the model of usage is as follows:
 where some of the arguments are optional depending on context.  (Here, the backslashes \ just "escape" line breaks in the
 command line.)  So for example:
 
-    python ldmq.py --frequency --corpus subtitles --word "house"
+    python ldm-query.py --frequency --corpus subtitles --word "house"
 
 would look up the frequency of the word "house" in the "BBC subtitles" corpus (giving the answer XXX).
 
@@ -94,7 +94,7 @@ immediately by the option name, then with extra parameters following it, separat
 the words "cat" and "dog" in the PPMI n-gram model trained on the BNC corpus with window radius 3, we would use the 
 command:
 
-    python ldmq.py \
+    python ldm-query.py \
         compare \
             --corpus bnc \
             --model ppmi-ngram \
@@ -105,7 +105,7 @@ which would produce the result XXX.
 
 Options can be given in any order after the mode, so we would get same result by running:
 
-    python ldmq.py \
+    python ldm-query.py \
         compare \
             --word-pair "cat" "dog" \
             --model ppmi-ngram \
@@ -118,7 +118,7 @@ specific (such as `--distance`, which is only used with the `compare` mode when 
 These are all the options, what they mean, what values they can take, and what modes they are used with.
 
 -   `--corpus <corpus-name>`: The corpus `<corpus-name>` will be used.
-    Required in all LDMQ modes.
+    Required in all LDM-Query modes.
     The permissible values of `<corpus-name>` are:
     -   `bnc` to use the 100-million-word BNC corpus.
     -   `subtitles` to use the 200-million-word BBC Subtitles corpus.
@@ -142,12 +142,12 @@ These are all the options, what they mean, what values they can take, and what m
         
     Following the model name, a number is given to specify the embedding size (for predict vector models only).
     
-        python ldmq compare --word-pair "cat" "dog" --corpus bnc --distance cosine --model cbow 300 --radius 5
+        python ldm-query.py compare --word-pair "cat" "dog" --corpus bnc --distance cosine --model cbow 300 --radius 5
         
     would compare the words "cat" and "dog" using cosine distance using the CBOW model with embedding size 300 and 
     window radius 5, trained on the BNC.  Whereas
     
-        python ldmq compare --word-pair "cat" "dog" --corpus bnc --distance cosine --model ppmi --radius 5
+        python ldm-query.py compare --word-pair "cat" "dog" --corpus bnc --distance cosine --model ppmi --radius 5
         
     would make the same comparison using the PPMI model with window radius 5.
     
@@ -198,12 +198,12 @@ Usage: `frequency` mode
 
 Returns the frequency of a word in the specified corpus.
 
-    python ldmq.py \
+    python ldm-query.py \
         frequency \
             --corpus <corpus-name> \
             --word "<word>"
         
-    python ldmq.py \
+    python ldm-query.py \
         frequency \
             --corpus <corpus-name> \
             --words-from-file "<path-to-file>" \
@@ -231,12 +231,12 @@ Usage: `rank` mode
 
 Returns the rank of a word in the specified corpus, by frequency.
 
-    python ldmq.py \
+    python ldm-query.py \
         rank \
             --corpus <corpus-name> \
             --word "<word>"
         
-    python ldmq.py \
+    python ldm-query.py \
         rank \
             --corpus <corpus-name> \
             --words-from-file "<path-to-file>" \
@@ -264,13 +264,13 @@ Usage: `vector` mode
 
 Returns the vector representation of a word in the specified vector-based LDM.
 
-    python ldmq.py \
+    python ldm-query.py \
         vector \
             --corpus <corpus-name> \
             --model <model-name> <embedding-size> <window-radius> \
             --word "<word>"
         
-    python ldmq.py \
+    python ldm-query.py \
         vector \
             --corpus <corpus-name> \
             --model <model-name> <embedding-size> <window-radius> \
@@ -298,14 +298,14 @@ Usage: `compare` mode
 
 Returns the comparison score between the specified words in the specified LDM.
 
-    python ldmq.py \
+    python ldm-query.py \
         compare \
             --corpus <corpus-name> \
             --model <model-name> <embedding-size> <window-radius> \
             --distance <distance-type> \
             --word-pair "<first-word>" "<second-word>"
         
-    python ldmq.py \
+    python ldm-query.py \
         compare \
             --corpus <corpus-name> \
             --model <model-name> <embedding-size> <window-radius> \
@@ -313,7 +313,7 @@ Returns the comparison score between the specified words in the specified LDM.
             --word-pairs-from-file "<path-to-file>" \
             --output-file "<path-to-file>"
         
-    python ldmq.py \
+    python ldm-query.py \
         compare \
             --corpus <corpus-name> \
             --model <model-name> <embedding-size> <window-radius> \
