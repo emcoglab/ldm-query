@@ -64,11 +64,20 @@ def run_frequency_with_list(wordlist_file: str,
             .to_csv(output_file, header=True, index=False))
 
 
+def _rank(word: str, freq_dist: FreqDist) -> int:
+    r = freq_dist.rank(word)
+    # +1 means that the most-frequent word is 1
+    # freq_dist.rank returns -1 if the word is not found, meaning that
+    # this function will return 0 if the word is not found.
+    # so use >= 1 checks for if the word is found
+    return r + 1
+
+
 def run_rank(word: str,
              freq_dist: FreqDist,
              output_file: str):
 
-    rank = freq_dist.rank(word)
+    rank = _rank(word, freq_dist)
 
     if output_file is None:
         print(rank if rank >= 1 else "None")
@@ -89,7 +98,7 @@ def run_rank_with_list(wordlist_file: str,
 
     ranks = []
     for word in word_list:
-        ranks.append((word, freq_dist.rank(word)))
+        ranks.append((word, _rank(word, freq_dist)))
 
     if output_file is None:
         for word, rank in ranks:
