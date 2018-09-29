@@ -203,6 +203,15 @@ if __name__ == '__main__':
 
     args = argparser.parse_args()
 
+    def _option_used(option_name):
+        if option_name in vars(args):
+            if vars(args)[option_name]:
+                return True
+            else:
+                return False
+        else:
+            return False
+
     # region Get mode
 
     if args.mode == Mode.Frequency.name:
@@ -219,7 +228,7 @@ if __name__ == '__main__':
     # region Validate args
 
     # Validate model params
-    if "model" in vars(args).keys():
+    if _option_used("model"):
 
         # For predict models, embedding size is required
         if args.model[0].lower() in ["cbow", "skip-gram"]:
@@ -234,10 +243,15 @@ if __name__ == '__main__':
             if len(args.model) > 1:
                 argparser.error("Embedding size invalid for count and n-gram models")
 
+    # Validate vector mode
+    if mode is Mode.Vector:
+        if args.model[0].lower() in ["log-ngram", "probability-ratio-ngram", "ppmi-ngram"]:
+            argparser.error("Cannot use n-gram model in vector mode.")
+
     # Validate distance measure
     if mode is Mode.Compare:
         # All but n-grams require distance
-        if args.model in ["log-ngram", "probability-ratio-ngram", "ppmi-ngram"]:
+        if args.model[0].lower() in ["log-ngram", "probability-ratio-ngram", "ppmi-ngram"]:
             if args.distance is not None:
                 argparser.error("Distance not valid for n-gram models")
         else:
@@ -251,23 +265,23 @@ if __name__ == '__main__':
     # Get word_mode
     # and words or path
     word_mode: WordMode.SingleWord
-    if args.word is not None:
+    if _option_used("word"):
         word_mode = WordMode.SingleWord
         words_or_path = args.word
-    elif args.word_pair is not None:
+    elif _option_used("word_pair"):
         word_mode = WordMode.WordPair
         words_or_path = args.word_pair
-    elif args.words_from_file is not None:
+    elif _option_used("words_from_file"):
         word_mode = WordMode.SingleWordList
         words_or_path = args.words_from_file
-    elif args.word_pairs_from_file is not None:
+    elif _option_used("word_pairs_from_file"):
         word_mode = WordMode.WordPairList
         words_or_path = args.word_pairs_from_file
     else:
         raise NotImplementedError()
 
     # get model spec
-    if "model" not in vars(args).keys():
+    if not _option_used("model"):
         model_type = None
         embedding_size = None
     elif len(args.model) == 1:
@@ -278,10 +292,10 @@ if __name__ == '__main__':
         embedding_size = int(args.model[1])
     else:
         raise NotImplementedError()
-    radius = int(args.window_radius)
+    radius = int(args.window_radius) if "window_radius" in vars(args) else None
 
     distance: DistanceType
-    if args.distance is None:
+    if not _option_used("distance"):
         distance = None
     elif args.distance.lower() == "cosine":
         distance = DistanceType.cosine
