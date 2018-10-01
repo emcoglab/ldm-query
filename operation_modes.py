@@ -20,8 +20,6 @@ from pandas import DataFrame, read_csv
 
 from ldm.core.corpus.corpus import CorpusMetadata
 from ldm.core.corpus.indexing import FreqDist
-from ldm.core.model.base import VectorSemanticModel, DistributionalSemanticModel
-from ldm.core.model.ngram import NgramModel
 from ldm.core.utils.exceptions import WordNotFoundError
 from ldm.core.utils.maths import DistanceType
 
@@ -115,10 +113,9 @@ def run_rank_with_list(wordlist_file: str,
 
 
 def run_vector(word: str,
-               model: VectorSemanticModel,
-               output_file: str,
-               model_file: str):
-    model.train(memory_map=True, force_load_from_file=model_file)
+               model,
+               output_file: str):
+    model.train(memory_map=True)
     try:
         vector = model.vector_for_word(word)
 
@@ -132,10 +129,9 @@ def run_vector(word: str,
 
 
 def run_vector_with_list(wordlist_file: str,
-                         model: VectorSemanticModel,
-                         output_file: str,
-                         model_file: str):
-    model.train(memory_map=True, force_load_from_file=model_file)
+                         model,
+                         output_file: str):
+    model.train(memory_map=True)
 
     with open(wordlist_file, mode="r") as wf:
         word_list = [l.strip().lower() for l in wf]
@@ -153,8 +149,10 @@ def run_vector_with_list(wordlist_file: str,
             print(", ".join(missing_words))
 
 
-def _compare(word_1, word_2, model: DistributionalSemanticModel, distance: DistanceType) -> float:
+def _compare(word_1, word_2, model, distance: DistanceType) -> float:
     try:
+        from ldm.core.model.ngram import NgramModel
+        from ldm.core.model.base import VectorSemanticModel
         if isinstance(model, NgramModel):
             return model.association_between(word_1, word_2)
         elif isinstance(model, VectorSemanticModel):
@@ -166,11 +164,10 @@ def _compare(word_1, word_2, model: DistributionalSemanticModel, distance: Dista
 
 
 def run_compare(word_1: str, word_2: str,
-                model: DistributionalSemanticModel,
+                model,
                 distance: DistanceType,
-                output_file: str,
-                model_file: str):
-    model.train(memory_map=True, force_load_from_file=model_file)
+                output_file: str):
+    model.train(memory_map=True)
 
     comparison = _compare(word_1, word_2, model, distance)
 
@@ -182,13 +179,12 @@ def run_compare(word_1: str, word_2: str,
 
 
 def run_compare_with_list(wordlist_file: str,
-                          model: DistributionalSemanticModel,
+                          model,
                           distance: DistanceType,
-                          output_file: str,
-                          model_file: str):
+                          output_file: str):
     if not model.could_load:
         raise FileNotFoundError("Precomputed model not found")
-    model.train(memory_map=True, force_load_from_file=model_file)
+    model.train(memory_map=True)
 
     with open(wordlist_file, mode="r", encoding="utf-8") as wf:
         word_list = [l.strip().lower() for l in wf]
@@ -213,13 +209,12 @@ def run_compare_with_list(wordlist_file: str,
 
 
 def run_compare_with_pair_list(wordpair_list_file: str,
-                               model: DistributionalSemanticModel,
+                               model,
                                distance: DistanceType,
-                               output_file: str,
-                               model_file: str):
+                               output_file: str):
     if not model.could_load:
         raise FileNotFoundError("Precomputed model not found")
-    model.train(memory_map=True, force_load_from_file=model_file)
+    model.train(memory_map=True)
 
     with open(wordpair_list_file, mode="r", encoding="utf-8") as wf:
         wordpair_list_df = read_csv(wf, header=False, index_col=None,

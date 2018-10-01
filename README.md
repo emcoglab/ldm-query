@@ -91,26 +91,28 @@ Usage: options
 
 Options refer to parts of the command line invocation after the mode.  These will always be a double hyphen, followed 
 immediately by the option name, then with extra parameters following it, separated by spaces.  For example, to compare 
-the words "cat" and "dog" in the PPMI n-gram model trained on the BNC corpus with window radius 3, we would use the 
+the words "cat" and "dog" using cosine distance in the log co-occurrence model trained on the subtitles corpus with window radius 5, we would use the 
 command:
 
     python ldm-query.py \
         compare \
-            --corpus bnc \
-            --model ppmi-ngram \
-            --radius 3 \
+            --corpus subtitles \
+            --model log-cooccurrence \
+            --distance cosine \
+            --radius 5 \
             --word-pair "cat" "dog"
 
-which would produce the result XXX.
+which would produce the result 0.22612953158753657.
 
 Options can be given in any order after the mode, so we would get same result by running:
 
     python ldm-query.py \
         compare \
             --word-pair "cat" "dog" \
-            --model ppmi-ngram \
-            --radius 3 \
-            --corpus bnc
+            --distance cosine \
+            --model log-cooccurrence \
+            --radius 5 \
+            --corpus subtitles
 
 Some options can be used with several usage modes (such as `--corpus`, which is used with every mode), and some are 
 specific (such as `--distance`, which is only used with the `compare` mode when using a vector-based LDM).
@@ -373,5 +375,4 @@ Passing words in CSV format
 [1]:    https://conda.io/miniconda.html
 [2]:    http://yaml.org
 
-TODO: fill in XXXs
 TODO: fill in examples

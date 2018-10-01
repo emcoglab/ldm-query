@@ -19,17 +19,13 @@ import logging
 import sys
 from enum import Enum, auto
 from os import path
-from typing import Dict
 
 import yaml
 
 from ldm.core.corpus.corpus import CorpusMetadata
 from ldm.core.corpus.indexing import FreqDist
-from ldm.core.model.count import LogCoOccurrenceCountModel, ConditionalProbabilityModel, ProbabilityRatioModel, \
-    PPMIModel
-from ldm.core.model.ngram import LogNgramModel, ProbabilityRatioNgramModel, PPMINgramModel
-from ldm.core.model.predict import SkipGramModel, CbowModel
 from ldm.core.utils.maths import DistanceType
+from ldm.preferences.config import Config as LDMConfig
 from operation_modes import run_frequency, run_frequency_with_list, run_rank, run_rank_with_list, run_vector, \
     run_vector_with_list, run_compare, run_compare_with_list, run_compare_with_pair_list
 
@@ -102,26 +98,10 @@ class WordMode(Enum):
     WordPairList = auto()
 
 
-def _get_model_file(config: Dict, model_type: str, corpus: str, radius: int, embedding_size: int) -> str:
-    path_template: str = config["models"][model_type]
-    corpus_relabelling: Dict = config["models"]["corpus-relabel"]
-    corpus_name = (corpus_relabelling[corpus]
-                   if corpus in corpus_relabelling.keys()
-                   else corpus)
-    if embedding_size is not None:
-        return path_template.format(
-            radius=radius,
-            embedding=embedding_size,
-            corpus=corpus_name)
-    else:
-        return path_template.format(
-            radius=radius,
-            corpus=corpus_name)
-
-
 def main():
 
     # Config
+    LDMConfig(use_config_overrides_from_file=_config_path)
     with open(_config_path, mode="r", encoding="utf-8") as config_file:
         config = yaml.load(config_file)
 
@@ -334,65 +314,40 @@ def main():
     output_file = args.output_file
 
     # Build model
-    if model_type is None:
-        model = None
-    # N-gram models
-    elif model_type == "log-ngram":
-        model = LogNgramModel(corpus, radius, freq_dist)
-    elif model_type == "probability-ratio-ngram":
-        model = ProbabilityRatioNgramModel(corpus, radius, freq_dist)
-    elif model_type == "ppmi-ngram":
-        model = PPMINgramModel(corpus, radius, freq_dist)
-    # Count vector models:
-    elif model_type == "log-cooccurrence":
-        model = LogCoOccurrenceCountModel(corpus, radius, freq_dist)
-    elif model_type == "conditional-probability":
-        model = ConditionalProbabilityModel(corpus, radius, freq_dist)
-    elif model_type == "probability-ratio":
-        model = ProbabilityRatioModel(corpus, radius, freq_dist)
-    elif model_type == "ppmi":
-        model = PPMIModel(corpus, radius, freq_dist)
-    # Predict vector models:
-    elif model_type == "skip-gram":
-        model = SkipGramModel(corpus, radius, embedding_size)
-    elif model_type == "cbow":
-        model = CbowModel(corpus, radius, embedding_size)
-    else:
-        raise NotImplementedError()
+    model = get_model_from_parameters(model_type, radius, embedding_size, corpus, freq_dist)
 
     # endregion
 
     # region Run appropriate function based on mode
 
-    model_file = _get_model_file(config, model_type, corpus_name, radius, embedding_size)
     if mode is Mode.Frequency:
         if word_mode is WordMode.SingleWord:
-            run_frequency(words_or_path, freq_dist, output_file, model_file)
+            run_frequency(words_or_path, freq_dist, output_file)
         elif word_mode is WordMode.SingleWordList:
-            run_frequency_with_list(words_or_path, freq_dist, corpus, output_file, model_file)
+            run_frequency_with_list(words_or_path, freq_dist, corpus, output_file)
         else:
             raise NotImplementedError()
     elif mode is Mode.Rank:
         if word_mode is WordMode.SingleWord:
-            run_rank(words_or_path, freq_dist, output_file, model_file)
+            run_rank(words_or_path, freq_dist, output_file)
         elif word_mode is WordMode.SingleWordList:
-            run_rank_with_list(words_or_path, freq_dist, corpus, output_file, model_file)
+            run_rank_with_list(words_or_path, freq_dist, corpus, output_file)
         else:
             raise NotImplementedError()
     elif mode is Mode.Vector:
         if word_mode is WordMode.SingleWord:
-            run_vector(words_or_path, model, output_file, model_file)
+            run_vector(words_or_path, model, output_file)
         elif word_mode is WordMode.SingleWordList:
-            run_vector_with_list(words_or_path, model, output_file, model_file)
+            run_vector_with_list(words_or_path, model, output_file)
         else:
             raise NotImplementedError()
     elif mode is Mode.Compare:
         if word_mode is WordMode.WordPair:
-            run_compare(words_or_path[0], words_or_path[1], model, distance, output_file, model_file)
+            run_compare(words_or_path[0], words_or_path[1], model, distance, output_file)
         elif word_mode is WordMode.SingleWordList:
-            run_compare_with_list(words_or_path, model, distance, output_file, model_file)
+            run_compare_with_list(words_or_path, model, distance, output_file)
         elif word_mode is WordMode.WordPairList:
-            run_compare_with_pair_list(words_or_path, model, distance, output_file, model_file)
+            run_compare_with_pair_list(words_or_path, model, distance, output_file)
         else:
             raise NotImplementedError()
     else:
@@ -401,6 +356,44 @@ def main():
     # endregion
 
     sys.exit(0)
+
+
+def get_model_from_parameters(model_type, window_radius, embedding_size, corpus, freq_dist):
+    if model_type is None:
+        model = None
+    # N-gram models
+    elif model_type == "log-ngram":
+        from ldm.core.model.ngram import LogNgramModel
+        model = LogNgramModel(corpus, window_radius, freq_dist)
+    elif model_type == "probability-ratio-ngram":
+        from ldm.core.model.ngram import ProbabilityRatioNgramModel
+        model = ProbabilityRatioNgramModel(corpus, window_radius, freq_dist)
+    elif model_type == "ppmi-ngram":
+        from ldm.core.model.ngram import PPMINgramModel
+        model = PPMINgramModel(corpus, window_radius, freq_dist)
+    # Count vector models:
+    elif model_type == "log-cooccurrence":
+        from ldm.core.model.count import LogCoOccurrenceCountModel
+        model = LogCoOccurrenceCountModel(corpus, window_radius, freq_dist)
+    elif model_type == "conditional-probability":
+        from ldm.core.model.count import ConditionalProbabilityModel
+        model = ConditionalProbabilityModel(corpus, window_radius, freq_dist)
+    elif model_type == "probability-ratio":
+        from ldm.core.model.count import ProbabilityRatioModel
+        model = ProbabilityRatioModel(corpus, window_radius, freq_dist)
+    elif model_type == "ppmi":
+        from ldm.core.model.count import PPMIModel
+        model = PPMIModel(corpus, window_radius, freq_dist)
+    # Predict vector models:
+    elif model_type == "skip-gram":
+        from ldm.core.model.predict import SkipGramModel
+        model = SkipGramModel(corpus, window_radius, embedding_size)
+    elif model_type == "cbow":
+        from ldm.core.model.predict import CbowModel
+        model = CbowModel(corpus, window_radius, embedding_size)
+    else:
+        raise NotImplementedError()
+    return model
 
 
 if __name__ == '__main__':
