@@ -6,41 +6,28 @@ LDM-Query is a Python program which lets you query corpora and linguistic distri
 For now it is controlled using a command line interface, and requires you to install Python and a few modules.
 
 
-Installation
-------------
+Downloading and installation
+----------------------------
 
-You should use Git to clone the package.  First make sure you have [Git intalled][0], and you have access to the repository on Github.  (Ask me for access if you don't have it.)  Then, in a command line, run:
+You should use Git to clone the package.  First make sure you have [Git intalled][0], and you have access to the 
+repository on Github.  (Ask me for access if you don't have it.)  Then, in a command line, run:
 
 	git clone --recurse-submodules git@github.com:emcoglab/ldm-query.git
-	
-(The `--recurse-submodules` option is important because LDM-Query is a command-line-interface wrapper around the main corpus analysis code, which is included as a Git submodule.  If you forgot to includ `--recurse-submodules`, you can run `git submodule update --init` after your usual clone).
+
+(The `--recurse-submodules` option is important because LDM-Query is a command-line-interface wrapper around the main 
+corpus analysis code, which is included as a Git submodule.  If you forgot to includ `--recurse-submodules`, you can run
+ `git submodule update --init` after your usual clone).
 
 This will download all the code necessary to run the LDM-Query program.
 
-LDM-Query requires Python 3.6+ and the following modules:
+LDM-Query requires Python 3.6+, and requires a number of additional Python packages to be installed.  You can download 
+Python from [its website][1], or use a distribution and package manager like [Conda][2]. LDM-Query's additional 
+requirements are listed in `requirements.txt`.  You can automatically download and install these dependencies using the 
+`pip` tool, which is included in Python 3.6+.  Once Python is installed, use `pip` to install the dependencies like 
+this:
 
--   `numpy`
--   `scipy`
--   `gensim`
--   `pyyaml`
--   `matplotlib`
--   `nltk`
--   `pandas`
--   `scikit-learn`
--   `seaborn`
--   `sklearn`
--   `srt`
--   `statsmodels`
+    pip install -r requirements.txt
 
-You can download Python from [its website][1], or use a distribution and package manager like [Conda][2].
-
-Once Python is installed, you can install each of the above modules using a package manager like `pip` or `conda`.  
-These are usually used from the command line something like this:
-
-    conda install numpy
-    conda install scipy
-    ...
-    
 Finally, once all these modules are installed, you can run LDM-Query from the command line like:
 
     python ldm-query.py
@@ -49,13 +36,13 @@ Finally, once all these modules are installed, you can run LDM-Query from the co
 Configuration
 -------------
 
-Before LDM-Query can be properly used, it must be configured so it knows where the files containing the corpora and LDMs are 
-stored on your computer.
+Before LDM-Query can be properly used, it must be configured so it knows where the files containing the corpora and LDMs
+ are stored on your computer.
 
 These are set in the file `config.yaml`, which is a text file in [YAML][3] format.  Comments in that file should explain
 to set your preferences.
-    
-    
+​    
+
 Usage: overview
 ---------------
 
@@ -76,13 +63,13 @@ In general, the model of usage is as follows:
             --radius <window-radius> \
             --distance <distance-type> \
             --word(-pair) "<first-word>" ("<second-word>")
-                       
-where some of the arguments are optional depending on context.  (Here, the backslashes \ just "escape" line breaks in the
-command line.)  So for example:
+
+where some of the arguments are optional depending on context.  (Here, the backslashes \ just "escape" line breaks in 
+the command line.)  So for example:
 
     python ldm-query.py frequency --corpus subtitles --word "house"
 
-would look up the frequency of the word "house" in the "BBC subtitles" corpus (giving the answer 134711).
+would look up the frequency of the word "house" in the "BBC subtitles" corpus (giving the answer `134711`).
 
 The available `<mode>`s are:
 
@@ -99,7 +86,8 @@ Usage: options
 
 Options refer to parts of the command line invocation after the mode.  These will always be a double hyphen, followed 
 immediately by the option name, then with extra parameters following it, separated by spaces.  For example, to compare 
-the words "cat" and "dog" using cosine distance in the log co-occurrence model trained on the subtitles corpus with window radius 5, we would use the 
+the words "cat" and "dog" using cosine distance in the log co-occurrence model trained on the subtitles corpus with 
+window radius 5, we would use the 
 command:
 
     python ldm-query.py \
@@ -110,7 +98,8 @@ command:
             --radius 5 \
             --word-pair "cat" "dog"
 
-which would produce the result 0.22612953158753657.
+which would produce the result `0.22612953158753657` (there may be a difference in the last few digits depending on your
+system).
 
 Options can be given in any order after the mode, so we would get same result by running:
 
@@ -124,7 +113,7 @@ Options can be given in any order after the mode, so we would get same result by
 
 Some options can be used with several usage modes (such as `--corpus`, which is used with every mode), and some are 
 specific (such as `--distance`, which is only used with the `compare` mode when using a vector-based LDM).
-    
+​    
 These are all the options, what they mean, what values they can take, and what modes they are used with.
 
 -   `--corpus <corpus-name>`: The corpus `<corpus-name>` will be used.
@@ -153,18 +142,18 @@ These are all the options, what they mean, what values they can take, and what m
     Following the model name, a number is given to specify the embedding size (for predict vector models only).
     
         python ldm-query.py compare --word-pair "cat" "dog" --corpus bnc --distance cosine --model cbow 300 --radius 5
-        
+    
     would compare the words "cat" and "dog" using cosine distance using the CBOW model with embedding size 300 and 
     window radius 5, trained on the BNC.  Whereas
     
         python ldm-query.py compare --word-pair "cat" "dog" --corpus bnc --distance cosine --model ppmi --radius 5
-        
+    
     would make the same comparison using the PPMI model with window radius 5.
     
 -   `--radius <window-radius>`: The context window radius used in the model.
     Required whenever `--model` is used.
     The permissible values of `<window-radius>` are `1`, `3`, `5`, or `10`.
-        
+    
 -   `--distance <distance-type>`: The distance type for comparing vectors.
     Required for `compare` modes when (and only when) the `--model` is a count vector model or a predict vector model 
     (i.e. not an n-gram model).
@@ -236,7 +225,7 @@ Example:
 
 	$> python ldm-query.py frequency --corous subtitles --word "house"
 	134711
-
+	
 	$> python ldm-query.py frequency --corpus subtitles --words-from-file "/Users/cai/Desktop/wordlist.txt"
 	house: 134711
 	cat: 13241
@@ -276,7 +265,7 @@ Example:
 
 	$> python ldm-query.py frequency --corous subtitles --word "house"
 	176
-
+	
 	$> python ldm-query.py frequency --corpus subtitles --words-from-file "/Users/cai/Desktop/wordlist.txt"
 	house: 176
 	cat: 1304
@@ -377,8 +366,7 @@ Passing words in CSV format
 -   If using the `--word-pairs-from-file` option, the csv should be a two-column file without a header.  I.e., a text 
     file with two words on each line, separated by a comma.
 
-
---- 
+---
 [0]:	https://git-scm.com/downloads
 [1]:    https://www.python.org/downloads/
 [2]:    https://conda.io/miniconda.html
