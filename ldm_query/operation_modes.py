@@ -18,10 +18,10 @@ caiwingfield.net
 from numpy import nan
 from pandas import DataFrame, read_csv
 
-from ldm.core.corpus.corpus import CorpusMetadata
-from ldm.core.corpus.indexing import FreqDist
-from ldm.core.utils.exceptions import WordNotFoundError
-from ldm.core.utils.maths import DistanceType
+from .ldm.core.corpus.corpus import CorpusMetadata
+from .ldm.core.corpus.indexing import FreqDist
+from .ldm.core.utils.exceptions import WordNotFoundError
+from .ldm.core.utils.maths import DistanceType
 
 
 def _frequency(word: str, freq_dist: FreqDist) -> int:
@@ -150,9 +150,9 @@ def run_vector_with_list(wordlist_file: str,
 
 
 def _compare(word_1, word_2, model, distance: DistanceType) -> float:
+    from .ldm.core.model.ngram import NgramModel
+    from .ldm.core.model.base import VectorSemanticModel
     try:
-        from ldm.core.model.ngram import NgramModel
-        from ldm.core.model.base import VectorSemanticModel
         if isinstance(model, NgramModel):
             return model.association_between(word_1, word_2)
         elif isinstance(model, VectorSemanticModel):
