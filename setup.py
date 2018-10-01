@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(
-    name="LDM-Query",
+    name="ldm-query",
     version="0.1",
     author="Cai Wingfield",
     author_email="c.wingfield@lancaster.ac.uk",

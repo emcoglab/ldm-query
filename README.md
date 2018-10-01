@@ -9,6 +9,14 @@ For now it is controlled using a command line interface, and requires you to ins
 Installation
 ------------
 
+You should use Git to clone the package.  First make sure you have [Git intalled][0], and you have access to the repository on Github.  (Ask me for access if you don't have it.)  Then, in a command line, run:
+
+	git clone --recurse-submodules git@github.com:emcoglab/ldm-query.git
+	
+(The `--recurse-submodules` option is important because LDM-Query is a command-line-interface wrapper around the main corpus analysis code, which is included as a Git submodule.  If you forgot to includ `--recurse-submodules`, you can run `git submodule update --init` after your usual clone).
+
+This will download all the code necessary to run the LDM-Query program.
+
 LDM-Query requires Python 3.6+ and the following modules:
 
 -   `numpy`
@@ -24,7 +32,7 @@ LDM-Query requires Python 3.6+ and the following modules:
 -   `srt`
 -   `statsmodels`
 
-You can download Python from [its website][0], or use a distribution and package manager like [Conda][1].
+You can download Python from [its website][1], or use a distribution and package manager like [Conda][2].
 
 Once Python is installed, you can install each of the above modules using a package manager like `pip` or `conda`.  
 These are usually used from the command line something like this:
@@ -44,7 +52,7 @@ Configuration
 Before LDM-Query can be properly used, it must be configured so it knows where the files containing the corpora and LDMs are 
 stored on your computer.
 
-These are set in the file `config.yaml`, which is a text file in [YAML][2] format.  Comments in that file should explain
+These are set in the file `config.yaml`, which is a text file in [YAML][3] format.  Comments in that file should explain
 to set your preferences.
     
     
@@ -371,8 +379,9 @@ Passing words in CSV format
 
 
 --- 
-[0]:    https://www.python.org/downloads/
-[1]:    https://conda.io/miniconda.html
-[2]:    http://yaml.org
+[0]:	https://git-scm.com/downloads
+[1]:    https://www.python.org/downloads/
+[2]:    https://conda.io/miniconda.html
+[3]:    http://yaml.org
 
 TODO: fill in examples
