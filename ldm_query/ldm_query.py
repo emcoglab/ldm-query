@@ -20,8 +20,6 @@ import sys
 from enum import Enum, auto
 from os import path
 
-import yaml
-
 from ldm.core.corpus.corpus import CorpusMetadata
 from ldm.core.corpus.indexing import FreqDist
 from ldm.core.utils.maths import DistanceType
@@ -102,103 +100,9 @@ class WordMode(Enum):
 def main():
 
     # Config
-    LDMConfig(use_config_overrides_from_file=_config_path)
-    with open(_config_path, mode="r", encoding="utf-8") as config_file:
-        config = yaml.load(config_file)
+    config = LDMConfig(use_config_overrides_from_file=_config_path)
 
-    # region Set up args
-
-    argparser = argparse.ArgumentParser(
-        description="Query corpora and linguistic distributional models. See README.md for more info.")
-
-    # Add mode parsers
-    mode_subparsers = argparser.add_subparsers(dest="mode")
-    mode_subparsers.required = True
-    mode_frequency_parser = mode_subparsers.add_parser(
-        Mode.Frequency.name,
-        help="Look up frequency of word in corpus")
-    mode_rank_parser = mode_subparsers.add_parser(
-        Mode.Rank.name,
-        help="Look up rank of word in corpus by frequency")
-    mode_vector_parser = mode_subparsers.add_parser(
-        Mode.Vector.name,
-        help="Look up the vector representation of a model in a model.")
-    mode_compare_parser = mode_subparsers.add_parser(
-        Mode.Compare.name,
-        help="Compare word pairs using a model.")
-
-    # Add corpus and outfile options to all modes
-    for mode_subparser in [mode_frequency_parser, mode_rank_parser, mode_vector_parser, mode_compare_parser]:
-        mode_subparser.add_argument("--corpus",
-                                    type=str,
-                                    choices=_corpora.keys(),
-                                    required=True,
-                                    help="The name of the corpus.")
-        mode_subparser.add_argument("--output-file",
-                                    type=str,
-                                    required=False,
-                                    dest="output_file",
-                                    metavar="PATH",
-                                    help="Write the output to this file.  Will overwrite existing files.")
-
-    # Add single word options to relevant parsers
-    for mode_subparser in [mode_frequency_parser, mode_rank_parser, mode_vector_parser]:
-        wordmode_group = mode_subparser.add_mutually_exclusive_group()
-        wordmode_group.add_argument("--word",
-                                    type=str,
-                                    required=False,
-                                    help="The word to look up.")
-        wordmode_group.add_argument("--words-from-file",
-                                    type=str,
-                                    dest="words_from_file",
-                                    required=False,
-                                    metavar="PATH",
-                                    help="The word to look up or compare.")
-
-    # Add all multi=word options to compare parser
-    wordmode_group = mode_compare_parser.add_mutually_exclusive_group()
-    wordmode_group.add_argument("--words-from-file",
-                                type=str,
-                                dest="words_from_file",
-                                required=False,
-                                metavar="PATH",
-                                help="The word to look up or compare.")
-    wordmode_group.add_argument("--word-pair",
-                                type=str,
-                                dest="word_pair",
-                                nargs=2,
-                                required=False,
-                                metavar=('FIRST WORD', 'SECOND WORD'),
-                                help="The words to compare.")
-    wordmode_group.add_argument("--word-pairs-from-file",
-                                type=str,
-                                dest="word_pairs_from_file",
-                                required=False,
-                                metavar="PATH",
-                                help="The word pairs to compare.")
-
-    # Add model arguments to relevant parsers
-    for mode_subparser in [mode_vector_parser, mode_compare_parser]:
-        mode_subparser.add_argument("--model",
-                                    type=str,
-                                    nargs="+",
-                                    required=True,
-                                    dest="model",
-                                    metavar=("MODEL", "EMBEDDING"),
-                                    help="The model specification to use.")
-        mode_subparser.add_argument("--window-radius",
-                                    type=int,
-                                    choices=_window_radii,
-                                    dest="window_radius",
-                                    required=True,
-                                    help="The window radius to use.")
-        mode_subparser.add_argument("--distance",
-                                    type=str,
-                                    choices=[dt.name for dt in DistanceType],
-                                    required=False,
-                                    help="The distance type to use.")
-
-    # endregion
+    argparser = build_argparser()
 
     args = argparser.parse_args()
 
@@ -307,8 +211,8 @@ def main():
     corpus_name = args.corpus
     corpus: CorpusMetadata = CorpusMetadata(
         name=_corpora[corpus_name],
-        path=config["corpora"][corpus_name]["path"],
-        freq_dist_path=config["corpora"][corpus_name]["index"])
+        path=config.value_by_key_path("corpora", corpus_name, "path"),
+        freq_dist_path=config.value_by_key_path("corpora", corpus_name, "index"))
     freq_dist: FreqDist = FreqDist.load(corpus.freq_dist_path)
 
     # Get output file
@@ -357,6 +261,94 @@ def main():
     # endregion
 
     sys.exit(0)
+
+
+def build_argparser():
+    argparser = argparse.ArgumentParser(
+        description="Query corpora and linguistic distributional models. See README.md for more info.")
+    # Add mode parsers
+    mode_subparsers = argparser.add_subparsers(dest="mode")
+    mode_subparsers.required = True
+    mode_frequency_parser = mode_subparsers.add_parser(
+        Mode.Frequency.name,
+        help="Look up frequency of word in corpus")
+    mode_rank_parser = mode_subparsers.add_parser(
+        Mode.Rank.name,
+        help="Look up rank of word in corpus by frequency")
+    mode_vector_parser = mode_subparsers.add_parser(
+        Mode.Vector.name,
+        help="Look up the vector representation of a model in a model.")
+    mode_compare_parser = mode_subparsers.add_parser(
+        Mode.Compare.name,
+        help="Compare word pairs using a model.")
+    # Add corpus and outfile options to all modes
+    for mode_subparser in [mode_frequency_parser, mode_rank_parser, mode_vector_parser, mode_compare_parser]:
+        mode_subparser.add_argument("--corpus",
+                                    type=str,
+                                    choices=_corpora.keys(),
+                                    required=True,
+                                    help="The name of the corpus.")
+        mode_subparser.add_argument("--output-file",
+                                    type=str,
+                                    required=False,
+                                    dest="output_file",
+                                    metavar="PATH",
+                                    help="Write the output to this file.  Will overwrite existing files.")
+    # Add single word options to relevant parsers
+    for mode_subparser in [mode_frequency_parser, mode_rank_parser, mode_vector_parser]:
+        wordmode_group = mode_subparser.add_mutually_exclusive_group()
+        wordmode_group.add_argument("--word",
+                                    type=str,
+                                    required=False,
+                                    help="The word to look up.")
+        wordmode_group.add_argument("--words-from-file",
+                                    type=str,
+                                    dest="words_from_file",
+                                    required=False,
+                                    metavar="PATH",
+                                    help="The word to look up or compare.")
+    # Add all multi=word options to compare parser
+    wordmode_group = mode_compare_parser.add_mutually_exclusive_group()
+    wordmode_group.add_argument("--words-from-file",
+                                type=str,
+                                dest="words_from_file",
+                                required=False,
+                                metavar="PATH",
+                                help="The word to look up or compare.")
+    wordmode_group.add_argument("--word-pair",
+                                type=str,
+                                dest="word_pair",
+                                nargs=2,
+                                required=False,
+                                metavar=('FIRST WORD', 'SECOND WORD'),
+                                help="The words to compare.")
+    wordmode_group.add_argument("--word-pairs-from-file",
+                                type=str,
+                                dest="word_pairs_from_file",
+                                required=False,
+                                metavar="PATH",
+                                help="The word pairs to compare.")
+    # Add model arguments to relevant parsers
+    for mode_subparser in [mode_vector_parser, mode_compare_parser]:
+        mode_subparser.add_argument("--model",
+                                    type=str,
+                                    nargs="+",
+                                    required=True,
+                                    dest="model",
+                                    metavar=("MODEL", "EMBEDDING"),
+                                    help="The model specification to use.")
+        mode_subparser.add_argument("--window-radius",
+                                    type=int,
+                                    choices=_window_radii,
+                                    dest="window_radius",
+                                    required=True,
+                                    help="The window radius to use.")
+        mode_subparser.add_argument("--distance",
+                                    type=str,
+                                    choices=[dt.name for dt in DistanceType],
+                                    required=False,
+                                    help="The distance type to use.")
+    return argparser
 
 
 def get_model_from_parameters(model_type, window_radius, embedding_size, corpus, freq_dist):
