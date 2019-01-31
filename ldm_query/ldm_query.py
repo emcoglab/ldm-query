@@ -20,9 +20,9 @@ import sys
 from enum import Enum, auto
 from os import path
 
-from ldm.core.corpus.corpus import CorpusMetadata
-from ldm.core.corpus.indexing import FreqDist
-from ldm.core.utils.maths import DistanceType
+from ldm.corpus.corpus import CorpusMetadata
+from ldm.corpus.indexing import FreqDist
+from ldm.utils.maths import DistanceType
 from ldm.preferences.config import Config as LDMConfig
 from operation import run_frequency, run_frequency_with_list, run_rank, run_rank_with_list, run_vector, \
     run_vector_with_list, run_compare, run_compare_with_list, run_compare_with_pair_list
@@ -356,33 +356,33 @@ def get_model_from_parameters(model_type, window_radius, embedding_size, corpus,
         model = None
     # N-gram models
     elif model_type == "log-ngram":
-        from .ldm.core.model.ngram import LogNgramModel
+        from ldm.model.ngram import LogNgramModel
         model = LogNgramModel(corpus, window_radius, freq_dist)
     elif model_type == "probability-ratio-ngram":
-        from .ldm.core.model.ngram import ProbabilityRatioNgramModel
+        from ldm.model.ngram import ProbabilityRatioNgramModel
         model = ProbabilityRatioNgramModel(corpus, window_radius, freq_dist)
     elif model_type == "ppmi-ngram":
-        from .ldm.core.model.ngram import PPMINgramModel
+        from ldm.model.ngram import PPMINgramModel
         model = PPMINgramModel(corpus, window_radius, freq_dist)
     # Count vector models:
     elif model_type == "log-cooccurrence":
-        from .ldm.core.model.count import LogCoOccurrenceCountModel
+        from ldm.model.count import LogCoOccurrenceCountModel
         model = LogCoOccurrenceCountModel(corpus, window_radius, freq_dist)
     elif model_type == "conditional-probability":
-        from .ldm.core.model.count import ConditionalProbabilityModel
+        from ldm.model.count import ConditionalProbabilityModel
         model = ConditionalProbabilityModel(corpus, window_radius, freq_dist)
     elif model_type == "probability-ratio":
-        from .ldm.core.model.count import ProbabilityRatioModel
+        from ldm.model.count import ProbabilityRatioModel
         model = ProbabilityRatioModel(corpus, window_radius, freq_dist)
     elif model_type == "ppmi":
-        from .ldm.core.model.count import PPMIModel
+        from ldm.model.count import PPMIModel
         model = PPMIModel(corpus, window_radius, freq_dist)
     # Predict vector models:
     elif model_type == "skip-gram":
-        from .ldm.core.model.predict import SkipGramModel
+        from ldm.model.predict import SkipGramModel
         model = SkipGramModel(corpus, window_radius, embedding_size)
     elif model_type == "cbow":
-        from .ldm.core.model.predict import CbowModel
+        from ldm.model.predict import CbowModel
         model = CbowModel(corpus, window_radius, embedding_size)
     else:
         raise NotImplementedError()

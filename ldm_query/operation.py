@@ -18,10 +18,10 @@ caiwingfield.net
 from numpy import nan
 from pandas import DataFrame, read_csv
 
-from ldm.core.corpus.corpus import CorpusMetadata
-from ldm.core.corpus.indexing import FreqDist
-from ldm.core.utils.exceptions import WordNotFoundError
-from ldm.core.utils.maths import DistanceType
+from ldm.corpus.corpus import CorpusMetadata
+from ldm.corpus.indexing import FreqDist
+from ldm.utils.exceptions import WordNotFoundError
+from ldm.utils.maths import DistanceType
 
 
 def _frequency(word: str, freq_dist: FreqDist) -> int:
