@@ -22,17 +22,18 @@ from os import path
 
 import yaml
 
-from .ldm.core.corpus.corpus import CorpusMetadata
-from .ldm.core.corpus.indexing import FreqDist
-from .ldm.core.utils.maths import DistanceType
-from .ldm.preferences.config import Config as LDMConfig
-from ldm_query.operation_modes import run_frequency, run_frequency_with_list, run_rank, run_rank_with_list, run_vector, \
+from ldm.core.corpus.corpus import CorpusMetadata
+from ldm.core.corpus.indexing import FreqDist
+from ldm.core.utils.maths import DistanceType
+from ldm.preferences.config import Config as LDMConfig
+from operation import run_frequency, run_frequency_with_list, run_rank, run_rank_with_list, run_vector, \
     run_vector_with_list, run_compare, run_compare_with_list, run_compare_with_pair_list
 
 # Suppress logging
 logger = logging.getLogger('my-logger')
 logger.propagate = False
 
+# shortname: dirname
 _corpora = {
     "bnc": "BNC",
     "subtitles": "BBC",
@@ -59,6 +60,7 @@ _window_radii = [1, 3, 5, 10]
 
 _readme_path = path.join(path.dirname(path.realpath(__file__)), 'README.md')
 _config_path = path.join(path.dirname(path.realpath(__file__)), 'config.yaml')
+
 
 class Mode(Enum):
     """The main invocation mode of the program."""
