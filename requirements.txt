@@ -1,12 +1,2 @@
 numpy
-scipy
-gensim
-pyyaml
-matplotlib
-nltk
 pandas
-scikit-learn
-seaborn
-sklearn
-srt
-statsmodels
