@@ -1,7 +1,3 @@
-gensim
-nltk
+-r ldm_query/ldm/requirements.txt
 numpy
 pandas
-scipy
-statsmodels
-yaml
