@@ -150,8 +150,8 @@ def run_vector_with_list(wordlist_file: str,
 
 
 def _compare(word_1, word_2, model, distance: DistanceType) -> float:
-    from .ldm.model.ngram import NgramModel
-    from .ldm.model.base import VectorSemanticModel
+    from ldm.model.ngram import NgramModel
+    from ldm.model.base import VectorSemanticModel
     try:
         if isinstance(model, NgramModel):
             return model.association_between(word_1, word_2)

@@ -97,10 +97,7 @@ class WordMode(Enum):
     WordPairList = auto()
 
 
-def main():
-
-    # Config
-    config = LDMConfig(use_config_overrides_from_file=_config_path)
+def main(ldm_config: LDMConfig):
 
     argparser = build_argparser()
 
@@ -148,13 +145,13 @@ def main():
 
     # Validate vector mode
     if mode is Mode.Vector:
-        if args.model[0].lower() in ["log-ngram", "probability-ratio-ngram", "ppmi-ngram"]:
+        if args.model[0].lower() in ["log-ngram", "probability-ratio-ngram", "ppmi-ngram", "pmi-ngram"]:
             argparser.error("Cannot use n-gram model in vector mode.")
 
     # Validate distance measure
     if mode is Mode.Compare:
         # All but n-grams require distance
-        if args.model[0].lower() in ["log-ngram", "probability-ratio-ngram", "ppmi-ngram"]:
+        if args.model[0].lower() in ["log-ngram", "probability-ratio-ngram", "ppmi-ngram", "pmi-ngram"]:
             if args.distance is not None:
                 argparser.error("Distance not valid for n-gram models")
         else:
@@ -211,8 +208,8 @@ def main():
     corpus_name = args.corpus
     corpus: CorpusMetadata = CorpusMetadata(
         name=_corpora[corpus_name],
-        path=config.value_by_key_path("corpora", corpus_name, "path"),
-        freq_dist_path=config.value_by_key_path("corpora", corpus_name, "index"))
+        path=ldm_config.value_by_key_path("corpora", corpus_name, "path"),
+        freq_dist_path=ldm_config.value_by_key_path("corpora", corpus_name, "index"))
     freq_dist: FreqDist = FreqDist.load(corpus.freq_dist_path)
 
     # Get output file
@@ -396,4 +393,5 @@ def get_model_from_parameters(model_type, window_radius, embedding_size, corpus,
 
 
 if __name__ == '__main__':
-    main()
+    with LDMConfig(use_config_overrides_from_file=_config_path) as config:
+        main(config)
