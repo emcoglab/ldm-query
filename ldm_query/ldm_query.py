@@ -361,6 +361,9 @@ def get_model_from_parameters(model_type, window_radius, embedding_size, corpus,
     elif model_type == "probability-ratio-ngram":
         from ldm.model.ngram import ProbabilityRatioNgramModel
         model = ProbabilityRatioNgramModel(corpus, window_radius, freq_dist)
+    elif model_type == "pmi-ngram":
+        from ldm.model.ngram import PMINgramModel
+        model = PMINgramModel(corpus, window_radius, freq_dist)
     elif model_type == "ppmi-ngram":
         from ldm.model.ngram import PPMINgramModel
         model = PPMINgramModel(corpus, window_radius, freq_dist)
@@ -374,6 +377,9 @@ def get_model_from_parameters(model_type, window_radius, embedding_size, corpus,
     elif model_type == "probability-ratio":
         from ldm.model.count import ProbabilityRatioModel
         model = ProbabilityRatioModel(corpus, window_radius, freq_dist)
+    elif model_type == "pmi":
+        from ldm.model.count import PMIModel
+        model = PMIModel(corpus, window_radius, freq_dist)
     elif model_type == "ppmi":
         from ldm.model.count import PPMIModel
         model = PPMIModel(corpus, window_radius, freq_dist)
