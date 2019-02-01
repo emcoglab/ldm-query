@@ -1,3 +1,7 @@
-yaml
+gensim
+nltk
 numpy
 pandas
+scipy
+statsmodels
+yaml
