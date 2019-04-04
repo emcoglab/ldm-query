@@ -235,7 +235,8 @@ def run_compare_with_pair_list(wordpair_list_file: str,
         comparison_col_name = f"{distance.name} distance" if distance is not None else "Association"
         rows = []
         for i, (_, word_1, word_2) in enumerate(wordpair_list_df.itertuples(), 1):
-            print_progress(i, line_count)
+            if i % 100 == 0 or i == line_count:
+                print_progress(i, line_count)
             comparison = _compare(word_1, word_2, model, distance)
             rows.append((word_1, word_2, comparison))
         DataFrame.from_records(
