@@ -15,18 +15,25 @@ repository on Github.  (Ask me for access if you don't have it.)  Then, in a com
 	git clone --recurse-submodules git@github.com:emcoglab/ldm-query.git
 
 (The `--recurse-submodules` option is important because LDM-Query is a command-line-interface wrapper around the main 
-corpus analysis code, which is included as a Git submodule.  If you forgot to includ `--recurse-submodules`, you can run
+corpus analysis code, which is included as a Git submodule.  If you forgot to include `--recurse-submodules`, you can run
  `git submodule update --init` after your usual clone).
 
 This will download all the code necessary to run the LDM-Query program.
 
-LDM-Query requires Python 3.6+, and requires a number of additional Python packages to be installed.  You can download 
-Python from [its website][1], or use a distribution and package manager like [Conda][2]. LDM-Query's additional 
-requirements are listed in `requirements.txt`.  You can automatically download and install these dependencies using the 
-`pip` tool, which is included in Python 3.6+.  Once Python is installed, use `pip` to install the dependencies like 
+LDM-Query requires Python 3.7 or greater, and requires a number of additional Python packages to be installed.  You can download 
+Python from [its website][1], or use a distribution and package manager like [Conda][2].  Make sure you have the right 
+version of Python installed using
+
+    python --version
+
+LDM-Query's additional requirements are listed in `requirements.txt`.  You can automatically download and install these dependencies using the 
+`pip` tool, which is included with Python.  Once Python is installed, use `pip` to install the dependencies like 
 this:
 
     pip install -r requirements.txt
+
+If you use Python for more than just this, you may want to use [`virtualenv`][3] to isolate the packages you install, but 
+this is not strictly necessary.
 
 Finally, once all these modules are installed, you can run LDM-Query from the command line like:
 
@@ -39,7 +46,7 @@ Configuration
 Before LDM-Query can be properly used, it must be configured so it knows where the files containing the corpora and LDMs
  are stored on your computer.
 
-These are set in the file `config.yaml`, which is a text file in [YAML][3] format.  Comments in that file should explain
+These are set in the file `config.yaml`, which is a text file in [YAML][4] format.  Comments in that file should explain
 to set your preferences.
 ​    
 
@@ -370,6 +377,7 @@ Passing words in CSV format
 [0]:	https://git-scm.com/downloads
 [1]:    https://www.python.org/downloads/
 [2]:    https://conda.io/miniconda.html
-[3]:    http://yaml.org
+[3]:    https://packaging.python.org/guides/installing-using-pip-and-virtualenv/
+[4]:    http://yaml.org
 
 TODO: fill in examples
