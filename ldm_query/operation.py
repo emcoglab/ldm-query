@@ -23,7 +23,6 @@ from ldm.corpus.indexing import FreqDist
 from ldm.utils.exceptions import WordNotFoundError
 from ldm.utils.maths import DistanceType
 
-
 FIRST_WORD = "First word"
 SECOND_WORD = "Second word"
 
@@ -62,9 +61,9 @@ def run_frequency_with_list(wordlist_file: str,
             print(f"{entry[0]}: {entry[1]}")
     else:
         (DataFrame
-            .from_records(freqs,
-                          columns=["Word", f"Frequency in {corpus.name} corpus"])
-            .to_csv(output_file, header=True, index=False))
+         .from_records(freqs,
+                       columns=["Word", f"Frequency in {corpus.name} corpus"])
+         .to_csv(output_file, header=True, index=False))
 
 
 def _rank(word: str, freq_dist: FreqDist) -> int:
@@ -79,7 +78,6 @@ def _rank(word: str, freq_dist: FreqDist) -> int:
 def run_rank(word: str,
              freq_dist: FreqDist,
              output_file: str):
-
     rank = _rank(word, freq_dist)
 
     if output_file is None:
@@ -197,7 +195,7 @@ def run_compare_with_list(wordlist_file: str,
     matrix = []
     for word_1 in word_list:
         # First column will be the first word
-        row = (word_1, ) + tuple(
+        row = (word_1,) + tuple(
             # Remaining columns will be comparison with each word in the list
             _compare(word_1, word_2, model, distance)
             for word_2 in word_list)
@@ -225,13 +223,18 @@ def run_compare_with_pair_list(wordpair_list_file: str,
                                     names=[FIRST_WORD, SECOND_WORD])
 
     if output_file is None:
-        for row in wordpair_list_df.iterrows():
-            word_1 = row[FIRST_WORD]
-            word_2 = row[SECOND_WORD]
+        for _, word_1, word_2 in wordpair_list_df.itertuples():
             comparison = _compare(word_1, word_2, model, distance)
             print(f"({word_1}, {word_2}): {comparison}")
     else:
         comparison_col_name = f"{distance.name} distance" if distance is not None else "Association"
-        wordpair_list_df[comparison_col_name] = wordpair_list_df.apply(
-            lambda r: _compare(r[FIRST_WORD], r[SECOND_WORD], model, distance), axis=1)
-        wordpair_list_df.to_csv(output_file, header=True, index=False)
+        rows = []
+        for i, (_, word_1, word_2) in enumerate(wordpair_list_df.itertuples()):
+            if i > 0 and i % 1000 == 0:
+                print(f"Compared {i:,} pairs...")
+            comparison = _compare(word_1, word_2, model, distance)
+            rows.append((word_1, word_2, comparison))
+        DataFrame.from_records(
+            rows,
+            columns=[FIRST_WORD, SECOND_WORD, comparison_col_name]
+        ).to_csv(output_file, header=True, index=False)
