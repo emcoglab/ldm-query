@@ -24,6 +24,10 @@ from ldm.utils.exceptions import WordNotFoundError
 from ldm.utils.maths import DistanceType
 
 
+FIRST_WORD = "First word"
+SECOND_WORD = "Second word"
+
+
 def _frequency(word: str, freq_dist: FreqDist) -> int:
     try:
         return freq_dist[word]
@@ -199,7 +203,7 @@ def run_compare_with_list(wordlist_file: str,
             for word_2 in word_list)
         matrix.append(row)
 
-    data = DataFrame.from_records(matrix, columns=["First word"] + word_list).set_index("First word")
+    data = DataFrame.from_records(matrix, columns=[FIRST_WORD] + word_list).set_index(FIRST_WORD)
 
     if output_file is None:
         for line in str(data):
@@ -217,17 +221,17 @@ def run_compare_with_pair_list(wordpair_list_file: str,
     model.train(memory_map=True)
 
     with open(wordpair_list_file, mode="r", encoding="utf-8") as wf:
-        wordpair_list_df = read_csv(wf, header=False, index_col=None,
-                                    names=["First word", "Second word"])
+        wordpair_list_df = read_csv(wf, header=None, index_col=None,
+                                    names=[FIRST_WORD, SECOND_WORD])
 
     if output_file is None:
         for row in wordpair_list_df.iterrows():
-            word_1 = row["First word"]
-            word_2 = row["Second word"]
+            word_1 = row[FIRST_WORD]
+            word_2 = row[SECOND_WORD]
             comparison = _compare(word_1, word_2, model, distance)
             print(f"({word_1}, {word_2}): {comparison}")
     else:
         comparison_col_name = f"{distance.name} distance" if distance is not None else "Association"
         wordpair_list_df[comparison_col_name] = wordpair_list_df.apply(
-            lambda r: _compare(r["First word"], r["Second word"], model, distance))
+            lambda r: _compare(r[FIRST_WORD], r[SECOND_WORD], model, distance), axis=1)
         wordpair_list_df.to_csv(output_file, header=True, index=False)
