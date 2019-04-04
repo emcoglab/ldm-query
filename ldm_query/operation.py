@@ -14,6 +14,7 @@ caiwingfield.net
 2018
 ---------------------------
 """
+from sys import stdout
 
 from numpy import nan
 from pandas import DataFrame, read_csv
@@ -218,6 +219,10 @@ def run_compare_with_pair_list(wordpair_list_file: str,
         raise FileNotFoundError("Precomputed model not found")
     model.train(memory_map=True)
 
+    # count lines in list
+    with open(wordpair_list_file, mode="r", encoding="utf-8") as wf:
+        line_count = sum(1 for _ in wf)
+
     with open(wordpair_list_file, mode="r", encoding="utf-8") as wf:
         wordpair_list_df = read_csv(wf, header=None, index_col=None,
                                     names=[FIRST_WORD, SECOND_WORD])
@@ -229,12 +234,35 @@ def run_compare_with_pair_list(wordpair_list_file: str,
     else:
         comparison_col_name = f"{distance.name} distance" if distance is not None else "Association"
         rows = []
-        for i, (_, word_1, word_2) in enumerate(wordpair_list_df.itertuples()):
-            if i > 0 and i % 1000 == 0:
-                print(f"Compared {i:,} pairs...")
+        for i, (_, word_1, word_2) in enumerate(wordpair_list_df.itertuples(), 1):
+            print_progress(i, line_count)
             comparison = _compare(word_1, word_2, model, distance)
             rows.append((word_1, word_2, comparison))
         DataFrame.from_records(
             rows,
             columns=[FIRST_WORD, SECOND_WORD, comparison_col_name]
         ).to_csv(output_file, header=True, index=False)
+
+
+def print_progress(iteration, total, prefix='', suffix='', decimals=1, bar_length=100):
+    """
+    Call in a loop to create terminal progress bar.
+    Thanks to https://gist.github.com/aubricus/f91fb55dc6ba5557fbab06119420dd6a
+    @params:
+        iteration   - Required  : current iteration (Int)
+        total       - Required  : total iterations (Int)
+        prefix      - Optional  : prefix string (Str)
+        suffix      - Optional  : suffix string (Str)
+        decimals    - Optional  : positive number of decimals in percent complete (Int)
+        bar_length  - Optional  : character length of bar (Int)
+    """
+    str_format = "{0:." + str(decimals) + "f}"
+    percents = str_format.format(100 * (iteration / float(total)))
+    filled_length = int(round(bar_length * iteration / float(total)))
+    bar = '█' * filled_length + '-' * (bar_length - filled_length)
+
+    stdout.write('\r%s |%s| %s%s %s' % (prefix, bar, percents, '%', suffix)),
+
+    if iteration == total:
+        stdout.write('\n')
+    stdout.flush()
