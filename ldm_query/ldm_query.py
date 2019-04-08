@@ -371,48 +371,49 @@ def build_argparser():
     return argparser
 
 
-def get_model_from_parameters(model_type, window_radius, embedding_size, corpus, freq_dist):
+def get_model_from_parameters(model_type: str, window_radius, embedding_size, corpus, freq_dist):
     if model_type is None:
-        model = None
+        return None
+    # Don't care about difference between underscores and hyphens
+    model_type = model_type.lower().replace("_", "-")
     # N-gram models
-    elif model_type == "log-ngram":
+    if model_type == "log-ngram":
         from ldm.model.ngram import LogNgramModel
-        model = LogNgramModel(corpus, window_radius, freq_dist)
-    elif model_type == "probability-ratio-ngram":
+        return LogNgramModel(corpus, window_radius, freq_dist)
+    if model_type == "probability-ratio-ngram":
         from ldm.model.ngram import ProbabilityRatioNgramModel
-        model = ProbabilityRatioNgramModel(corpus, window_radius, freq_dist)
-    elif model_type == "pmi-ngram":
+        return ProbabilityRatioNgramModel(corpus, window_radius, freq_dist)
+    if model_type == "pmi-ngram":
         from ldm.model.ngram import PMINgramModel
-        model = PMINgramModel(corpus, window_radius, freq_dist)
-    elif model_type == "ppmi-ngram":
+        return PMINgramModel(corpus, window_radius, freq_dist)
+    if model_type == "ppmi-ngram":
         from ldm.model.ngram import PPMINgramModel
-        model = PPMINgramModel(corpus, window_radius, freq_dist)
+        return PPMINgramModel(corpus, window_radius, freq_dist)
     # Count vector models:
-    elif model_type == "log-cooccurrence":
+    if model_type == "log-cooccurrence":
         from ldm.model.count import LogCoOccurrenceCountModel
-        model = LogCoOccurrenceCountModel(corpus, window_radius, freq_dist)
-    elif model_type == "conditional-probability":
+        return LogCoOccurrenceCountModel(corpus, window_radius, freq_dist)
+    if model_type == "conditional-probability":
         from ldm.model.count import ConditionalProbabilityModel
-        model = ConditionalProbabilityModel(corpus, window_radius, freq_dist)
-    elif model_type == "probability-ratio":
+        return ConditionalProbabilityModel(corpus, window_radius, freq_dist)
+    if model_type == "probability-ratio":
         from ldm.model.count import ProbabilityRatioModel
-        model = ProbabilityRatioModel(corpus, window_radius, freq_dist)
-    elif model_type == "pmi":
+        return ProbabilityRatioModel(corpus, window_radius, freq_dist)
+    if model_type == "pmi":
         from ldm.model.count import PMIModel
-        model = PMIModel(corpus, window_radius, freq_dist)
-    elif model_type == "ppmi":
+        return PMIModel(corpus, window_radius, freq_dist)
+    if model_type == "ppmi":
         from ldm.model.count import PPMIModel
-        model = PPMIModel(corpus, window_radius, freq_dist)
+        return PPMIModel(corpus, window_radius, freq_dist)
     # Predict vector models:
-    elif model_type == "skip-gram":
+    if model_type == "skip-gram":
         from ldm.model.predict import SkipGramModel
-        model = SkipGramModel(corpus, window_radius, embedding_size)
-    elif model_type == "cbow":
+        return SkipGramModel(corpus, window_radius, embedding_size)
+    if model_type == "cbow":
         from ldm.model.predict import CbowModel
-        model = CbowModel(corpus, window_radius, embedding_size)
-    else:
-        raise NotImplementedError()
-    return model
+        return CbowModel(corpus, window_radius, embedding_size)
+
+    raise NotImplementedError()
 
 
 if __name__ == '__main__':

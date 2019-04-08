@@ -208,6 +208,7 @@ def run_compare_with_list(wordlist_file: str,
     matrix = []
     for word_1 in word_list:
         # First column will be the first word
+        # noinspection PyTypeChecker
         row = (word_1,) + tuple(
             # Remaining columns will be comparison with each word in the list
             _compare(word_1, word_2, model, distance, combinator_type)

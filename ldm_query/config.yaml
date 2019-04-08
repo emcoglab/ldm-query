@@ -7,19 +7,19 @@ corpora:
   #   index: the absolute location of the .freqdist file
 
   bnc:
-    path:  "/Users/cai/Box Sync/LANGBOOT Project/Corpus Analysis/Model data/Corpora/BNC.corpus"
-    index: "/Users/cai/Box Sync/LANGBOOT Project/Corpus Analysis/Model data/Indexes/BNC.freqdist"
+    path:  "/Volumes/Data/corpora/BBC/2 Tokenised/BNC.corpus"
+    index: "/Volumes/Data/indices/BNC.freqdist"
 
   subtitles:
-    path:  "/Users/cai/Box Sync/LANGBOOT Project/Corpus Analysis/Model data/Corpora/BBC.corpus"
-    index: "/Users/cai/Box Sync/LANGBOOT Project/Corpus Analysis/Model data/Indexes/BBC.freqdist"
+    path:  "/Volumes/Data/corpora/BBC/4 Tokenised/BBC.corpus"
+    index: "/Volumes/Data/indexes/BBC.freqdist"
 
   ukwac:
-    path:  "/Users/cai/Box Sync/LANGBOOT Project/Corpus Analysis/Model data/Corpora/UKWAC.corpus"
-    index: "/Users/cai/Box Sync/LANGBOOT Project/Corpus Analysis/Model data/Indexes/UKWAC.freqdist"
+    path:  "/Volumes/Data/corpora/BBC/3 Tokenised/UKWAC.corpus"
+    index: "/Volumes/Data/indices/UKWAC.freqdist"
 
 models:
   # The directory where all models live.  Within this directory, models must be arranged in the following manner:
   #
   #   <directory>/<model-name>/<*model-files>
-  directory: "/Users/cai/Box Sync/LANGBOOT Project/Corpus Analysis/Model data/Models"
+  directory: "/Volumes/Data/vectors"
