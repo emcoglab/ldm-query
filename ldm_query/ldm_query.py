@@ -23,6 +23,7 @@ from os import path
 from ldm.corpus.corpus import CorpusMetadata
 from ldm.corpus.indexing import FreqDist
 from ldm.utils.maths import DistanceType
+from ldm.corpus.multiword import VectorCombinatorType
 from ldm.preferences.config import Config as LDMConfig
 from operation import run_frequency, run_frequency_with_list, run_rank, run_rank_with_list, run_vector, \
     run_vector_with_list, run_compare, run_compare_with_list, run_compare_with_pair_list
@@ -157,6 +158,13 @@ def main(ldm_config: LDMConfig):
         else:
             if args.distance is None:
                 argparser.error("Distance is required for vector-based models.")
+                
+    # Validate combinator type
+    if mode is Mode.Compare:
+        # Combinators can only be used with vector models, but is not required
+        if args.model[0].lower() in ["log-ngram", "probability-ratio-ngram", "ppmi-ngram", "pmi-ngram"]:
+            if args.combinator is not None:
+                argparser.error("Combinator not valid for n-gram models")
 
     # endregion
 
@@ -204,6 +212,17 @@ def main(ldm_config: LDMConfig):
     else:
         raise NotImplementedError()
 
+    if not _option_used("combinator"):
+        combinator_type = VectorCombinatorType.none
+    elif args.combinator == VectorCombinatorType.none.name:
+        combinator_type = VectorCombinatorType.none
+    elif args.combinator == VectorCombinatorType.additive.name:
+        combinator_type = VectorCombinatorType.additive
+    elif args.combinator == VectorCombinatorType.multiplicative.name:
+        combinator_type = VectorCombinatorType.none
+    else:
+        raise NotImplementedError()
+
     # Get corpus and freqdist
     corpus_name = args.corpus
     corpus: CorpusMetadata = CorpusMetadata(
@@ -245,11 +264,11 @@ def main(ldm_config: LDMConfig):
             raise NotImplementedError()
     elif mode is Mode.Compare:
         if word_mode is WordMode.WordPair:
-            run_compare(words_or_path[0], words_or_path[1], model, distance, output_file)
+            run_compare(words_or_path[0], words_or_path[1], model, distance, combinator_type, output_file)
         elif word_mode is WordMode.SingleWordList:
-            run_compare_with_list(words_or_path, model, distance, output_file)
+            run_compare_with_list(words_or_path, model, distance, combinator_type, output_file)
         elif word_mode is WordMode.WordPairList:
-            run_compare_with_pair_list(words_or_path, model, distance, output_file)
+            run_compare_with_pair_list(words_or_path, model, distance, combinator_type, output_file)
         else:
             raise NotImplementedError()
     else:
@@ -274,7 +293,7 @@ def build_argparser():
         help="Look up rank of word in corpus by frequency")
     mode_vector_parser = mode_subparsers.add_parser(
         Mode.Vector.name,
-        help="Look up the vector representation of a model in a model.")
+        help="Look up the vector representation of a word in a model.")
     mode_compare_parser = mode_subparsers.add_parser(
         Mode.Compare.name,
         help="Compare word pairs using a model.")
@@ -340,11 +359,15 @@ def build_argparser():
                                     dest="window_radius",
                                     required=True,
                                     help="The window radius to use.")
-        mode_subparser.add_argument("--distance",
-                                    type=str,
-                                    choices=[dt.name for dt in DistanceType],
-                                    required=False,
-                                    help="The distance type to use.")
+    mode_compare_parser.add_argument("--distance",
+                                     type=str,
+                                     choices=[dt.name for dt in DistanceType],
+                                     required=False,
+                                     help="The distance type to use.")
+    mode_compare_parser.add_argument("--combinator",
+                                     choices=[vc.name for vc in VectorCombinatorType],
+                                     required=False,
+                                     help="The vector combinator to use for multi-word tokens.")
     return argparser
 
 

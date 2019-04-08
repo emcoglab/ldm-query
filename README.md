@@ -192,6 +192,14 @@ These are all the options, what they mean, what values they can take, and what m
     See the "Passing words in CSV format" section for more info on how the CSV should be formatted and what the results
     will be.
     
+-   `--combinator <combinator-type>`: The vector combinator to use for multi-word tokens.
+    Only valid for `compare` modes, and only when the `--model` is a count vector model or a predict vector model (i.e. 
+    not an n-gram model).
+    The permissible values of `<combinator-type>` are:
+    -   `addivite`: Adds the vectors for each word in a multi-word term.
+    -   `multiplicative`: Elementwise multiplies the vectors for each word in a multi-word term.
+    -   `none` (default): All terms are treated as single tokens, without processing sub-strings as separate words.
+    
 -   `--output-file "<path-to-file>"`: Path to file where results will be written.
     If this optional paramter is given, the results will be written to the specified file rather than displayed in the 
     terminal.
@@ -322,6 +330,7 @@ Returns the comparison score between the specified words in the specified LDM.
             --corpus <corpus-name> \
             --model <model-name> <embedding-size> <window-radius> \
             --distance <distance-type> \
+            --combinator <combinator-type> \
             --word-pair "<first-word>" "<second-word>"
         
     python ldm-query.py \
@@ -329,6 +338,7 @@ Returns the comparison score between the specified words in the specified LDM.
             --corpus <corpus-name> \
             --model <model-name> <embedding-size> <window-radius> \
             --distance <distance-type> \
+            --combinator <combinator-type> \
             --word-pairs-from-file "<path-to-file>" \
             --output-file "<path-to-file>"
         
@@ -337,6 +347,7 @@ Returns the comparison score between the specified words in the specified LDM.
             --corpus <corpus-name> \
             --model <model-name> <embedding-size> <window-radius> \
             --distance <distance-type> \
+            --combinator <combinator-type> \
             --words-from-file "<path-to-file>" \
             --output-file "<path-to-file>"
 
@@ -347,6 +358,7 @@ Required options:
 -   Either `--word-pairs` or `--word-pairs-from-file` or `--words-from-file`.   
 
 Optional options:
+-   `--combinator`.
 -   `--output-file`.
 
 Output:

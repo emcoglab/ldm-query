@@ -23,6 +23,7 @@ from ldm.corpus.indexing import FreqDist
 from ldm.utils.exceptions import WordNotFoundError
 from ldm.utils.logging import print_progress
 from ldm.utils.maths import DistanceType
+from ldm.corpus.multiword import VectorCombinatorType
 
 FIRST_WORD = "First word"
 SECOND_WORD = "Second word"
@@ -152,16 +153,25 @@ def run_vector_with_list(wordlist_file: str,
             print(", ".join(missing_words))
 
 
-def _compare(word_1, word_2, model, distance: DistanceType) -> float:
+def _compare(word_1, word_2, model, distance: DistanceType, combinator_type: VectorCombinatorType) -> float:
+
     from ldm.model.ngram import NgramModel
     from ldm.model.base import VectorSemanticModel
+
     try:
         if isinstance(model, NgramModel):
             return model.association_between(word_1, word_2)
         elif isinstance(model, VectorSemanticModel):
-            return model.distance_between(word_1, word_2, distance)
+            if combinator_type is VectorCombinatorType.none:
+                return model.distance_between(word_1, word_2, distance)
+            elif (combinator_type is VectorCombinatorType.additive
+                  or combinator_type is VectorCombinatorType.multiplicative):
+                return model.distance_between_multigrams(word_1, word_2, distance, combinator_type)
+            else:
+                raise NotImplementedError()
         else:
             raise NotImplementedError()
+
     except WordNotFoundError:
         return nan
 
@@ -169,10 +179,11 @@ def _compare(word_1, word_2, model, distance: DistanceType) -> float:
 def run_compare(word_1: str, word_2: str,
                 model,
                 distance: DistanceType,
+                combinator_type: VectorCombinatorType,
                 output_file: str):
     model.train(memory_map=True)
 
-    comparison = _compare(word_1, word_2, model, distance)
+    comparison = _compare(word_1, word_2, model, distance, combinator_type)
 
     if output_file is None:
         print(comparison)
@@ -184,6 +195,7 @@ def run_compare(word_1: str, word_2: str,
 def run_compare_with_list(wordlist_file: str,
                           model,
                           distance: DistanceType,
+                          combinator_type: VectorCombinatorType,
                           output_file: str):
     if not model.could_load:
         raise FileNotFoundError("Precomputed model not found")
@@ -198,7 +210,7 @@ def run_compare_with_list(wordlist_file: str,
         # First column will be the first word
         row = (word_1,) + tuple(
             # Remaining columns will be comparison with each word in the list
-            _compare(word_1, word_2, model, distance)
+            _compare(word_1, word_2, model, distance, combinator_type)
             for word_2 in word_list)
         matrix.append(row)
 
@@ -214,6 +226,7 @@ def run_compare_with_list(wordlist_file: str,
 def run_compare_with_pair_list(wordpair_list_file: str,
                                model,
                                distance: DistanceType,
+                               combinator_type: VectorCombinatorType,
                                output_file: str):
     if not model.could_load:
         raise FileNotFoundError("Precomputed model not found")
@@ -229,7 +242,7 @@ def run_compare_with_pair_list(wordpair_list_file: str,
 
     if output_file is None:
         for _, word_1, word_2 in wordpair_list_df.itertuples():
-            comparison = _compare(word_1, word_2, model, distance)
+            comparison = _compare(word_1, word_2, model, distance, combinator_type)
             print(f"({word_1}, {word_2}): {comparison}")
     else:
         comparison_col_name = f"{distance.name} distance" if distance is not None else "Association"
@@ -237,7 +250,7 @@ def run_compare_with_pair_list(wordpair_list_file: str,
         for i, (_, word_1, word_2) in enumerate(wordpair_list_df.itertuples(), 1):
             if i % 100 == 0 or i == line_count:
                 print_progress(i, line_count)
-            comparison = _compare(word_1, word_2, model, distance)
+            comparison = _compare(word_1, word_2, model, distance, combinator_type)
             rows.append((word_1, word_2, comparison))
         DataFrame.from_records(
             rows,
