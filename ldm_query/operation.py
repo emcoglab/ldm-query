@@ -14,7 +14,6 @@ caiwingfield.net
 2018
 ---------------------------
 """
-from sys import stdout
 
 from numpy import nan
 from pandas import DataFrame, read_csv
@@ -22,8 +21,8 @@ from pandas import DataFrame, read_csv
 from ldm.corpus.corpus import CorpusMetadata
 from ldm.corpus.indexing import FreqDist
 from ldm.utils.exceptions import WordNotFoundError
-from ldm.utils.maths import DistanceType
 from ldm.utils.logging import print_progress
+from ldm.utils.maths import DistanceType
 
 FIRST_WORD = "First word"
 SECOND_WORD = "Second word"
