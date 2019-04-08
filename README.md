@@ -36,7 +36,12 @@ this:
 If you use Python for more than just this, you may want to use [`virtualenv`][virtualenv] to isolate the packages you install, but 
 this is not strictly necessary.
 
-Finally, once all these modules are installed, you can run LDM-Query from the command line like:
+Finally, once all these modules are installed, you can run LDM-Query from the command line.  First go to the directory
+you cloned to.  On Mac and Linux this is done with `cd`:
+
+    cd <path-to-cloned-ldm-query>
+
+Then invoke the program like:
 
     python ldm-query.py
 
