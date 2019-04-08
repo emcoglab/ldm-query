@@ -44,6 +44,22 @@ you cloned to.  On Mac and Linux this is done with `cd`:
 Then invoke the program like:
 
     python ldm-query.py
+    
+
+Getting updates
+---------------
+
+To see if there are updates, run the commands:
+
+    git fetch
+    git status
+
+To pull updates into your local copy, use the following two commands:
+
+    git pull
+    git submodule update
+
+Then everything should be up to date.  If you have made local changes you may need to [stash][git-stash] them first.
 
 
 Configuration
@@ -394,6 +410,7 @@ Passing words in CSV format
 ---
 [git-download]:    https://git-scm.com/downloads
 [github-ssh]:      https://help.github.com/en/articles/connecting-to-github-with-ssh
+[git-stash]:       https://www.atlassian.com/git/tutorials/saving-changes/git-stash
 [python-download]: https://www.python.org/downloads/
 [conda-download]:  https://conda.io/miniconda.html
 [virtualenv]:      https://packaging.python.org/guides/installing-using-pip-and-virtualenv/
