@@ -246,7 +246,14 @@ def run_compare_with_pair_list(wordpair_list_file: str,
             comparison = _compare(word_1, word_2, model, distance, combinator_type)
             print(f"({word_1}, {word_2}): {comparison}")
     else:
-        comparison_col_name = f"{distance.name} distance" if distance is not None else "Association"
+        if distance is not None:
+            comparison_col_name = f"{distance.name} distance"
+        else:
+            comparison_col_name = "Association"
+
+        if combinator_type is not VectorCombinatorType.none:
+            comparison_col_name += f" ({combinator_type.name})"
+
         rows = []
         for i, (_, word_1, word_2) in enumerate(wordpair_list_df.itertuples(), 1):
             if i % 100 == 0 or i == line_count:
