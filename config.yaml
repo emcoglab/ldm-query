@@ -29,4 +29,11 @@ models:
   # The directory where all models live.  Within this directory, models must be arranged in the following manner:
   #
   #   <directory>/<model-name>/<*model-files>
+  #
+  # So for example if one of your model files is located at:
+  #
+  #   /Volumes/Data/vectors/log_cooccurrence/BBC_r=1_log_cooccurrence.npz
+  #
+  # Then this path must be "/Volumes/Data/vectors", and keeping the model file "BBC_r=1_log_cooccurrence.npz" in a
+  # directory called "log_cooccurrence" is mandatory.
   directory: "/Volumes/Data/vectors"

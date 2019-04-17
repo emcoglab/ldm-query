@@ -15,6 +15,8 @@ caiwingfield.net
 ---------------------------
 """
 
+from os import path
+
 from numpy import nan
 from pandas import DataFrame, read_csv
 
@@ -119,7 +121,7 @@ def run_rank_with_list(wordlist_file: str,
 def run_vector(word: str,
                model,
                output_file: str):
-    model.train(memory_map=True)
+    load_model(model)
     try:
         vector = model.vector_for_word(word)
 
@@ -135,7 +137,7 @@ def run_vector(word: str,
 def run_vector_with_list(wordlist_file: str,
                          model,
                          output_file: str):
-    model.train(memory_map=True)
+    load_model(model)
 
     with open(wordlist_file, mode="r") as wf:
         word_list = [l.strip().lower() for l in wf]
@@ -181,7 +183,7 @@ def run_compare(word_1: str, word_2: str,
                 distance: DistanceType,
                 combinator_type: VectorCombinatorType,
                 output_file: str):
-    model.train(memory_map=True)
+    load_model(model)
 
     comparison = _compare(word_1, word_2, model, distance, combinator_type)
 
@@ -197,9 +199,7 @@ def run_compare_with_list(wordlist_file: str,
                           distance: DistanceType,
                           combinator_type: VectorCombinatorType,
                           output_file: str):
-    if not model.could_load:
-        raise FileNotFoundError("Precomputed model not found")
-    model.train(memory_map=True)
+    load_model(model)
 
     with open(wordlist_file, mode="r", encoding="utf-8") as wf:
         word_list = [l.strip().lower() for l in wf]
@@ -229,9 +229,7 @@ def run_compare_with_pair_list(wordpair_list_file: str,
                                distance: DistanceType,
                                combinator_type: VectorCombinatorType,
                                output_file: str):
-    if not model.could_load:
-        raise FileNotFoundError("Precomputed model not found")
-    model.train(memory_map=True)
+    load_model(model)
 
     # count lines in list
     with open(wordpair_list_file, mode="r", encoding="utf-8") as wf:
@@ -264,3 +262,20 @@ def run_compare_with_pair_list(wordpair_list_file: str,
             rows,
             columns=[FIRST_WORD, SECOND_WORD, comparison_col_name]
         ).to_csv(output_file, header=True, index=False)
+
+
+def load_model(model):
+    """
+    Loads a model if it can.
+    :param model:
+    :return:
+    :raises: PrecomputedModelNotFoundError
+    """
+    if not model.could_load:
+        raise PrecomputedModelNotFoundError(f"Precomputed model not found (looking for {path.join(model.save_dir, model._model_filename_with_ext)})")
+    model.train(memory_map=True)
+
+
+class PrecomputedModelNotFoundError(FileNotFoundError):
+    """When a precomputed model cannot be found but is required."""
+    pass
