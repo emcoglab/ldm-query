@@ -22,10 +22,9 @@ from pandas import DataFrame, read_csv
 
 from ldm.corpus.corpus import CorpusMetadata
 from ldm.corpus.indexing import FreqDist
-from ldm.utils.exceptions import WordNotFoundError
-from ldm.utils.logging import print_progress
-from ldm.utils.maths import DistanceType
 from ldm.corpus.multiword import VectorCombinatorType
+from ldm.utils.exceptions import WordNotFoundError
+from ldm.utils.maths import DistanceType
 
 FIRST_WORD = "First word"
 SECOND_WORD = "Second word"
@@ -254,8 +253,8 @@ def run_compare_with_pair_list(wordpair_list_file: str,
 
         rows = []
         for i, (_, word_1, word_2) in enumerate(wordpair_list_df.itertuples(), 1):
-            if i % 100 == 0 or i == line_count:
-                print_progress(i, line_count, suffix=f"{i:,} word pairs compared")
+            if i % 1000 == 0:
+                print(f"Compared {i:,} pairs...")
             comparison = _compare(word_1, word_2, model, distance, combinator_type)
             rows.append((word_1, word_2, comparison))
         DataFrame.from_records(
