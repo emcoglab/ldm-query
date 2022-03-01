@@ -14,6 +14,7 @@ caiwingfield.net
 2018
 ---------------------------
 """
+
 import argparse
 import logging
 import sys
@@ -28,11 +29,12 @@ from ldm.preferences.config import Config as LDMConfig
 from operation import run_frequency, run_frequency_with_list, run_rank, run_rank_with_list, run_vector, \
     run_vector_with_list, run_compare, run_compare_with_list, run_compare_with_pair_list
 
+
 # Suppress logging
 logger = logging.getLogger('my-logger')
 logger.propagate = False
 
-# shortname: dirname
+# shortname → dirname
 _corpora = {
     "bnc": "BNC",
     "subtitles": "BBC",
