@@ -14,16 +14,16 @@ corpora:
   #   index: the absolute location of the .freqdist file
 
   bnc:
-    path:  "/Volumes/Data/corpora/BBC/2 Tokenised/BNC.corpus"
-    index: "/Volumes/Data/indices/BNC.freqdist"
+    path:  "/Volumes/Big Data/corpora/BBC/2 Tokenised/BNC.corpus"
+    index: "/Volumes/Big Data/indices/BNC.freqdist"
 
   subtitles:
-    path:  "/Volumes/Data/corpora/BBC/4 Tokenised/BBC.corpus"
-    index: "/Volumes/Data/indexes/BBC.freqdist"
+    path:  "/Volumes/Big Data/corpora/BBC/4 Tokenised/BBC.corpus"
+    index: "/Volumes/Big Data/indexes/BBC.freqdist"
 
   ukwac:
-    path:  "/Volumes/Data/corpora/BBC/3 Tokenised/UKWAC.corpus"
-    index: "/Volumes/Data/indices/UKWAC.freqdist"
+    path:  "/Volumes/Big Data/corpora/BBC/3 Tokenised/UKWAC.corpus"
+    index: "/Volumes/Big Data/indices/UKWAC.freqdist"
 
 models:
   # The directory where all models live.  Within this directory, models must be arranged in the following manner:
@@ -36,4 +36,4 @@ models:
   #
   # Then this path must be "/Volumes/Data/vectors", and keeping the model file "BBC_r=1_log_cooccurrence.npz" in a
   # directory called "log_cooccurrence" is mandatory.
-  directory: "/Volumes/Data/vectors"
+  directory: "/Volumes/Big Data/vectors"
