@@ -353,7 +353,7 @@ def build_argparser():
                                     dest="model",
                                     metavar=("MODEL", "EMBEDDING"),
                                     help="The model specification to use.")
-        mode_subparser.add_argument("--window-radius",
+        mode_subparser.add_argument("--radius",
                                     type=int,
                                     choices=_window_radii,
                                     dest="window_radius",
