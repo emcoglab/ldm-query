@@ -230,10 +230,6 @@ def run_compare_with_pair_list(wordpair_list_file: str,
                                output_file: str):
     load_model(model)
 
-    # count lines in list
-    with open(wordpair_list_file, mode="r", encoding="utf-8") as wf:
-        line_count = sum(1 for _ in wf)
-
     with open(wordpair_list_file, mode="r", encoding="utf-8") as wf:
         wordpair_list_df = read_csv(wf, header=None, index_col=None,
                                     names=[FIRST_WORD, SECOND_WORD])
