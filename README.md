@@ -65,12 +65,16 @@ Then everything should be up to date.  If you have made local changes you may ne
 Configuration
 -------------
 
-Before LDM-Query can be properly used, it must be configured so it knows where the files containing the corpora and LDMs
- are stored on your computer.
+Before LDM-Query can be properly used, it must be configured so it knows where the files containing the corpora and LDMs 
+are stored on your computer.
 
 These are set in the file `config.yaml`, which is a text file in [YAML][yaml] format.  Comments in that file should explain
-to set your preferences.
-​    
+how to set your preferences.
+
+When you have the required files downloaded and located where you want them, copy their *absolute* paths into the relevant 
+places in `config.yaml`. Note that some of the files for the model must be located in specifically named directory hierarchies 
+— these requirements are explained in comments in `config.yaml`.
+
 
 Usage: overview
 ---------------
