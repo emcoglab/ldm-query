@@ -161,6 +161,12 @@ These are all the options, what they mean, what values they can take, and what m
     The permissible values of `<model-name>` are:
     -   N-gram models:
         -   `log-ngram`: The log n-gram count model.
+        -   `conditional-probability-ngram`: The conditional probability n-gram model.
+            -   **A note about the conditional probability n-gram model**: The conditional probability n-gram model is 
+                not symmetric. In other words, the order of the words in the word pair matters for the result. In all 
+                cases, the first word will be treated as the target word `t` and the second word will be treated as the 
+                context word `c`. The result returned will be the conditional probability `p(c|t)`, i.e. the probability
+                of finding the word `c` in the context of the target word `t`.
         -   `probability-ratio-ngram`: The probability ratio n-gram model.
         -   `ppmi-ngram`: The positive pointwise mutual information (PPMI) n-gram model.
     -   Count vector models:

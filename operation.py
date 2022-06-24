@@ -157,12 +157,12 @@ def run_vector_with_list(wordlist_file: str,
 def _compare(word_1, word_2, model, distance: DistanceType, combinator_type: VectorCombinatorType) -> float:
 
     from ldm.model.ngram import NgramModel
-    from ldm.model.base import VectorSemanticModel
+    from ldm.model.base import VectorModel
 
     try:
         if isinstance(model, NgramModel):
             return model.association_between(word_1, word_2)
-        elif isinstance(model, VectorSemanticModel):
+        elif isinstance(model, VectorModel):
             if combinator_type is VectorCombinatorType.none:
                 return model.distance_between(word_1, word_2, distance)
             elif (combinator_type is VectorCombinatorType.additive

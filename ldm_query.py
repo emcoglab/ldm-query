@@ -41,20 +41,23 @@ _corpora = {
     "ukwac": "UKWAC",
 }
 
-_models = [
-    # N-gram models:
+_ngram_models = [
     "log-ngram",
+    "conditional-probability-ngram",
     "probability-ratio-ngram",
     "ppmi-ngram",
-    # Count vector models:
+]
+_count_models = [
     "log-cooccurrence",
     "conditional-probability",
     "probability-ratio",
     "ppmi",
-    # Predict vector models:
+]
+_predict_models = [
     "skip-gram",
     "cbow",
 ]
+_models = _ngram_models + _count_models + _predict_models
 
 _embedding_sizes = [50, 100, 200, 300, 500]
 _window_radii = [1, 3, 5, 10]
@@ -134,7 +137,7 @@ def main(ldm_config: LDMConfig):
     if _option_used("model"):
 
         # For predict models, embedding size is required
-        if args.model[0].lower() in ["cbow", "skip-gram"]:
+        if args.model[0].lower() in _predict_models:
             if len(args.model) == 1:
                 argparser.error("Please specify embedding size when using predict models")
             elif int(args.model[1]) not in _embedding_sizes:
@@ -148,13 +151,13 @@ def main(ldm_config: LDMConfig):
 
     # Validate vector mode
     if mode is Mode.Vector:
-        if args.model[0].lower() in ["log-ngram", "probability-ratio-ngram", "ppmi-ngram", "pmi-ngram"]:
+        if args.model[0].lower() in _ngram_models:
             argparser.error("Cannot use n-gram model in vector mode.")
 
     # Validate distance measure
     if mode is Mode.Compare:
         # All but n-grams require distance
-        if args.model[0].lower() in ["log-ngram", "probability-ratio-ngram", "ppmi-ngram", "pmi-ngram"]:
+        if args.model[0].lower() in _ngram_models:
             if args.distance is not None:
                 argparser.error("Distance not valid for n-gram models")
         else:
@@ -164,7 +167,7 @@ def main(ldm_config: LDMConfig):
     # Validate combinator type
     if mode is Mode.Compare:
         # Combinators can only be used with vector models, but is not required
-        if args.model[0].lower() in ["log-ngram", "probability-ratio-ngram", "ppmi-ngram", "pmi-ngram"]:
+        if args.model[0].lower() in _ngram_models:
             if args.combinator is not None:
                 argparser.error("Combinator not valid for n-gram models")
 
@@ -350,6 +353,7 @@ def build_argparser():
     for mode_subparser in [mode_vector_parser, mode_compare_parser]:
         mode_subparser.add_argument("--model",
                                     type=str,
+                                    choices=_models,
                                     nargs="+",
                                     required=True,
                                     dest="model",
@@ -382,6 +386,9 @@ def get_model_from_parameters(model_type: str, window_radius, embedding_size, co
     if model_type == "log-ngram":
         from ldm.model.ngram import LogNgramModel
         return LogNgramModel(corpus, window_radius, freq_dist)
+    if model_type == "conditional-probability-ngram":
+        from ldm.model.ngram import ConditionalProbabilityNgramModel
+        return ConditionalProbabilityNgramModel(corpus, window_radius, freq_dist)
     if model_type == "probability-ratio-ngram":
         from ldm.model.ngram import ProbabilityRatioNgramModel
         return ProbabilityRatioNgramModel(corpus, window_radius, freq_dist)
