@@ -230,6 +230,7 @@ These are all the options, what they mean, what values they can take, and what m
     The permissible values of `<combinator-type>` are:
     -   `addivite`: Adds the vectors for each word in a multi-word term.
     -   `multiplicative`: Elementwise multiplies the vectors for each word in a multi-word term.
+    -   `mean`: Vectors for each word are combined by taking the mean. The same as finding the centroid.
     -   `none` (default): All terms are treated as single tokens, without processing sub-strings as separate words.
     
 -   `--output-file "<path-to-file>"`: Path to file where results will be written.

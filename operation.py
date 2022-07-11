@@ -165,8 +165,9 @@ def _compare(word_1, word_2, model, distance: DistanceType, combinator_type: Vec
         elif isinstance(model, VectorModel):
             if combinator_type is VectorCombinatorType.none:
                 return model.distance_between(word_1, word_2, distance)
-            elif (combinator_type is VectorCombinatorType.additive
-                  or combinator_type is VectorCombinatorType.multiplicative):
+            elif combinator_type in [VectorCombinatorType.additive,
+                                     VectorCombinatorType.multiplicative,
+                                     VectorCombinatorType.mean]:
                 return model.distance_between_multigrams(word_1, word_2, distance, combinator_type)
             else:
                 raise NotImplementedError()
