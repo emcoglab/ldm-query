@@ -224,7 +224,7 @@ def main(ldm_config: LDMConfig):
     elif args.combinator == VectorCombinatorType.additive.name:
         combinator_type = VectorCombinatorType.additive
     elif args.combinator == VectorCombinatorType.multiplicative.name:
-        combinator_type = VectorCombinatorType.none
+        combinator_type = VectorCombinatorType.multiplicative
     else:
         raise NotImplementedError()
 
