@@ -228,7 +228,7 @@ These are all the options, what they mean, what values they can take, and what m
     Only valid for `compare` modes, and only when the `--model` is a count vector model or a predict vector model (i.e. 
     not an n-gram model).
     The permissible values of `<combinator-type>` are:
-    -   `addivite`: Adds the vectors for each word in a multi-word term.
+    -   `additive`: Adds the vectors for each word in a multi-word term.
     -   `multiplicative`: Elementwise multiplies the vectors for each word in a multi-word term.
     -   `mean`: Vectors for each word are combined by taking the mean. The same as finding the centroid.
     -   `none` (default): All terms are treated as single tokens, without processing sub-strings as separate words.
