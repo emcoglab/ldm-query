@@ -15,6 +15,8 @@ caiwingfield.net
 ---------------------------
 """
 
+from __future__ import annotations
+
 from os import path
 
 from numpy import nan
@@ -69,13 +71,9 @@ def run_frequency_with_list(wordlist_file: str,
          .to_csv(output_file, header=True, index=False))
 
 
-def _rank(word: str, freq_dist: FreqDist) -> int:
-    r = freq_dist.rank(word)
-    # +1 means that the most-frequent word is 1
-    # freq_dist.rank returns -1 if the word is not found, meaning that
-    # this function will return 0 if the word is not found.
-    # so use >= 1 checks for if the word is found
-    return r + 1
+def _rank(word: str, freq_dist: FreqDist) -> int | None:
+    r = freq_dist.rank(word, top_is_zero=False, missing_rank=None)
+    return r
 
 
 def run_rank(word: str,
@@ -84,13 +82,10 @@ def run_rank(word: str,
     rank = _rank(word, freq_dist)
 
     if output_file is None:
-        print(rank if rank >= 1 else "None")
+        print(rank)
     else:
         with open(output_file, mode="w", encoding="utf-8") as f:
-            if rank >= 1:
-                f.write(f"{rank}\n")
-            else:
-                f.write("None\n")
+            f.write(f"{rank}\n")
 
 
 def run_rank_with_list(wordlist_file: str,
@@ -106,14 +101,10 @@ def run_rank_with_list(wordlist_file: str,
 
     if output_file is None:
         for word, rank in ranks:
-            if rank >= 1:
-                print(f"{word}: {rank}")
-            else:
-                print(f"{word}: None")
+            print(f"{word}: {rank}")
     else:
         rank_col_name = f"Frequency in {corpus.name} corpus"
         data = DataFrame.from_records(ranks, columns=["Word", rank_col_name])
-        data[data[rank_col_name] == -1] = nan
         data.to_csv(output_file, header=True, index=False)
 
 
