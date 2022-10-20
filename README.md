@@ -1,9 +1,25 @@
 LDM-Query: query corpora and linguistic distributional models
 ========================================================
 
-LDM-Query is a Python program which lets you query corpora and linguistic distributional models (LDMs).
+**LDM-Query is a Python program which lets you query corpora and linguistic distributional models (LDMs).**
 
-For now it is controlled using a command line interface, and requires you to install Python and a few modules.
+**For now it is controlled using a command line interface, and requires you to install Python and a few modules.**
+
+What's here
+-----------
+
+- [Downloading and installation](#downloading-and-installation)
+- [Getting updates](#getting-updates)
+- [Configuration](#configuration)
+- Usage:
+  - [Overview](#usage-overview)
+  - [Options](#usage-options)
+  - Modes:
+    - [Word frequency](#usage-frequency-mode) (`frequency`)
+    - [Word rank](#usage-rank-mode) (`rank`)
+    - [Word vector](#usage-vector-mode) (`vector`)
+    - [Compare words](#usage-compare-mode) (`compare`)
+  - [Passing words in CSV format](#passing-words-in-csv-format)
 
 
 Downloading and installation
@@ -21,15 +37,15 @@ corpus analysis code, which is included as a Git submodule.  If you forgot to in
 
 This will download all the code necessary to run the LDM-Query program.
 
-LDM-Query requires Python 3.7 or greater, and requires a number of additional Python packages to be installed.  You can download 
-Python from [its website][python-download], or use a distribution and package manager like [Conda][conda-download].  Make sure you have the right 
-version of Python installed using
+LDM-Query requires Python 3.7 or greater, and requires a number of additional Python packages to be installed.  You can
+download Python from [its website][python-download], or use a distribution and package manager like [Conda][conda-download].
+Make sure you have the right version of Python installed using
 
     python --version
 
-LDM-Query's additional requirements are listed in `requirements.txt`.  You can automatically download and install these dependencies using the 
-`pip` tool, which is included with Python.  Once Python is installed, use `pip` to install the dependencies like 
-this:
+LDM-Query's additional requirements are listed in `requirements.txt`.  You can automatically download and install these
+dependencies using the `pip` tool, which is included with Python.  Once Python is installed, use `pip` to install the
+dependencies like this:
 
     pip install -r requirements.txt
 
@@ -164,9 +180,9 @@ These are all the options, what they mean, what values they can take, and what m
         -   `conditional-probability-ngram`: The conditional probability n-gram model.
             -   **A note about the conditional probability n-gram model**: The conditional probability n-gram model is 
                 not symmetric. In other words, the order of the words in the word pair matters for the result. In all 
-                cases, the first word will be treated as the target word `t` and the second word will be treated as the 
-                context word `c`. The result returned will be the conditional probability `p(c|t)`, i.e. the probability
-                of finding the word `c` in the context of the target word `t`.
+                cases, the first word will be treated as the target word $t$ and the second word will be treated as the 
+                context word $c$. The result returned will be the conditional probability $p(c|t)$, i.e. the probability
+                of finding the word $c$ in the context of the target word $t$.
         -   `probability-ratio-ngram`: The probability ratio n-gram model.
         -   `ppmi-ngram`: The positive pointwise mutual information (PPMI) n-gram model.
     -   Count vector models:
@@ -271,7 +287,7 @@ Output:
     
 Example:
 
-	$> python ldm-query.py frequency --corous subtitles --word "house"
+	$> python ldm-query.py frequency --corpus subtitles --word "house"
 	134711
 	
 	$> python ldm-query.py frequency --corpus subtitles --words-from-file "/Users/cai/Desktop/wordlist.txt"
@@ -311,10 +327,10 @@ Output:
     
 Example:
 
-	$> python ldm-query.py frequency --corous subtitles --word "house"
+	$> python ldm-query.py rank --corous subtitles --word "house"
 	176
 	
-	$> python ldm-query.py frequency --corpus subtitles --words-from-file "/Users/cai/Desktop/wordlist.txt"
+	$> python ldm-query.py rank --corpus subtitles --words-from-file "/Users/cai/Desktop/wordlist.txt"
 	house: 176
 	cat: 1304
 	hasdfasdsfasdfjkas: None
