@@ -45,6 +45,13 @@ Then invoke the program like:
 
     python ldm-query.py
     
+You may first need to activate a virtual environment:
+
+```bash
+source venv/bin/activate
+```
+
+
 
 Getting updates
 ---------------
