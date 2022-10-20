@@ -13,7 +13,9 @@ You should use Git to clone the package.  First make sure you have [Git intalled
 repository on Github.  (Ask me for access if you don't have it.)  You may also have to 
 [create and authorise an ssh key][github-ssh] for your Github account.  Then, in a command line, run:
 
-	git clone --recurse-submodules git@github.com:emcoglab/ldm-query.git
+```bash
+git clone --recurse-submodules git@github.com:emcoglab/ldm-query.git
+```
 
 (The `--recurse-submodules` option is important because LDM-Query is a command-line-interface wrapper around the main 
 corpus analysis code, which is included as a Git submodule.  If you forgot to include `--recurse-submodules`, you can run
@@ -25,13 +27,17 @@ LDM-Query requires Python 3.7 or greater, and requires a number of additional Py
 Python from [its website][python-download], or use a distribution and package manager like [Conda][conda-download].  Make sure you have the right 
 version of Python installed using
 
-    python --version
+```bash
+python --version
+```
 
 LDM-Query's additional requirements are listed in `requirements.txt`.  You can automatically download and install these dependencies using the 
 `pip` tool, which is included with Python.  Once Python is installed, use `pip` to install the dependencies like 
 this:
 
-    pip install -r requirements.txt
+```bash
+pip install -r requirements.txt
+```
 
 If you use Python for more than just this, you may want to use [`virtualenv`][virtualenv] to isolate the packages you install, but 
 this is not strictly necessary.
@@ -39,12 +45,16 @@ this is not strictly necessary.
 Finally, once all these modules are installed, you can run LDM-Query from the command line.  First go to the directory
 you cloned to.  On Mac and Linux this is done with `cd`:
 
-    cd <path-to-cloned-ldm-query>
+```bash
+cd <path-to-cloned-ldm-query>
+```
 
 Then invoke the program like:
 
-    python ldm-query.py
-    
+```bash
+python ldm-query.py
+```
+
 You may first need to activate a virtual environment:
 
 ```bash
@@ -58,13 +68,17 @@ Getting updates
 
 To see if there are updates, run the commands:
 
-    git fetch
-    git status
+```bash
+git fetch
+git status
+```
 
 To pull updates into your local copy, use the following two commands:
 
-    git pull
-    git submodule update
+```bash
+git pull
+git submodule update
+```
 
 Then everything should be up to date.  If you have made local changes you may need to [stash][git-stash] them first.
 
@@ -96,18 +110,22 @@ LDM-Query can do several things:
 
 In general, the model of usage is as follows:
 
-    python ldm-query.py \
-        <mode> \
-            --corpus <corpus-name> \
-            --model <model-name> [<embedding size>] \
-            --radius <window-radius> \
-            --distance <distance-type> \
-            --word(-pair) "<first-word>" ("<second-word>")
+```bash
+python ldm-query.py \
+    <mode> \
+        --corpus <corpus-name> \
+        --model <model-name> [<embedding size>] \
+        --radius <window-radius> \
+        --distance <distance-type> \
+        --word(-pair) "<first-word>" ("<second-word>")
+```
 
 where some of the arguments are optional depending on context.  (Here, the backslashes \ just "escape" line breaks in 
 the command line.)  So for example:
 
-    python ldm-query.py frequency --corpus subtitles --word "house"
+```bash
+python ldm-query.py frequency --corpus subtitles --word "house"
+```
 
 would look up the frequency of the word "house" in the "BBC subtitles" corpus (giving the answer `134711`).
 
@@ -130,26 +148,30 @@ the words "cat" and "dog" using cosine distance in the log co-occurrence model t
 window radius 5, we would use the 
 command:
 
-    python ldm-query.py \
-        compare \
-            --corpus subtitles \
-            --model log-cooccurrence \
-            --distance cosine \
-            --radius 5 \
-            --word-pair "cat" "dog"
+```bash
+python ldm-query.py \
+    compare \
+        --corpus subtitles \
+        --model log-cooccurrence \
+        --distance cosine \
+        --radius 5 \
+        --word-pair "cat" "dog"
+```
 
 which would produce the result `0.22612953158753657` (there may be a difference in the last few digits depending on your
 system).
 
 Options can be given in any order after the mode, so we would get same result by running:
 
-    python ldm-query.py \
-        compare \
-            --word-pair "cat" "dog" \
-            --distance cosine \
-            --model log-cooccurrence \
-            --radius 5 \
-            --corpus subtitles
+```bash
+python ldm-query.py \
+    compare \
+        --word-pair "cat" "dog" \
+        --distance cosine \
+        --model log-cooccurrence \
+        --radius 5 \
+        --corpus subtitles
+```
 
 Some options can be used with several usage modes (such as `--corpus`, which is used with every mode), and some are 
 specific (such as `--distance`, which is only used with the `compare` mode when using a vector-based LDM).
@@ -185,14 +207,19 @@ These are all the options, what they mean, what values they can take, and what m
         -   `skip-gram`: The skip-gram model from word2vec.
         -   `cbow`: The continuous bag of words (CBOW) model from word2vec.
         
+    
     Following the model name, a number is given to specify the embedding size (for predict vector models only).
     
-        python ldm-query.py compare --word-pair "cat" "dog" --corpus bnc --distance cosine --model cbow 300 --radius 5
+    ```bash
+    python ldm-query.py compare --word-pair "cat" "dog" --corpus bnc --distance cosine --model cbow 300 --radius 5
+    ```
     
     would compare the words "cat" and "dog" using cosine distance using the CBOW model with embedding size 300 and 
     window radius 5, trained on the BNC.  Whereas
     
-        python ldm-query.py compare --word-pair "cat" "dog" --corpus bnc --distance cosine --model ppmi --radius 5
+    ```bash
+    python ldm-query.py compare --word-pair "cat" "dog" --corpus bnc --distance cosine --model ppmi --radius 5
+    ```
     
     would make the same comparison using the PPMI model with window radius 5.
     
@@ -252,16 +279,18 @@ Usage: `frequency` mode
 
 Returns the frequency of a word in the specified corpus.
 
-    python ldm-query.py \
-        frequency \
-            --corpus <corpus-name> \
-            --word "<word>"
-        
-    python ldm-query.py \
-        frequency \
-            --corpus <corpus-name> \
-            --words-from-file "<path-to-file>" \
-            --output-file "<path-to-file>"
+```bash
+python ldm-query.py \
+    frequency \
+        --corpus <corpus-name> \
+        --word "<word>"
+    
+python ldm-query.py \
+    frequency \
+        --corpus <corpus-name> \
+        --words-from-file "<path-to-file>" \
+        --output-file "<path-to-file>"
+```
 
 Required options:
 -   `--corpus`.
@@ -276,31 +305,36 @@ Output:
     -   "Word"
     -   "Frequency in <corpus-name> corpus"
     
+
 Example:
 
-	$> python ldm-query.py frequency --corous subtitles --word "house"
-	134711
-	
-	$> python ldm-query.py frequency --corpus subtitles --words-from-file "/Users/cai/Desktop/wordlist.txt"
-	house: 134711
-	cat: 13241
-	hasdfasdsfasdfjkas: 0
+```bash
+$> python ldm-query.py frequency --corous subtitles --word "house"
+134711
+
+$> python ldm-query.py frequency --corpus subtitles --words-from-file "/Users/cai/Desktop/wordlist.txt"
+house: 134711
+cat: 13241
+hasdfasdsfasdfjkas: 0
+```
 
 Usage: `rank` mode
 ------------------
 
 Returns the rank of a word in the specified corpus, by frequency.
 
-    python ldm-query.py \
-        rank \
-            --corpus <corpus-name> \
-            --word "<word>"
-        
-    python ldm-query.py \
-        rank \
-            --corpus <corpus-name> \
-            --words-from-file "<path-to-file>" \
-            --output-file "<path-to-file>"
+```bash
+python ldm-query.py \
+    rank \
+        --corpus <corpus-name> \
+        --word "<word>"
+    
+python ldm-query.py \
+    rank \
+        --corpus <corpus-name> \
+        --words-from-file "<path-to-file>" \
+        --output-file "<path-to-file>"
+```
 
 Required options:
 -   `--corpus`.
@@ -316,33 +350,38 @@ Output:
     -   "Word"
     -   "Rank in <corpus-name> corpus"
     
+
 Example:
 
-	$> python ldm-query.py frequency --corous subtitles --word "house"
-	176
-	
-	$> python ldm-query.py frequency --corpus subtitles --words-from-file "/Users/cai/Desktop/wordlist.txt"
-	house: 176
-	cat: 1304
-	hasdfasdsfasdfjkas: None
+```bash
+$> python ldm-query.py frequency --corous subtitles --word "house"
+176
+
+$> python ldm-query.py frequency --corpus subtitles --words-from-file "/Users/cai/Desktop/wordlist.txt"
+house: 176
+cat: 1304
+hasdfasdsfasdfjkas: None
+```
 
 Usage: `vector` mode
 --------------------
 
 Returns the vector representation of a word in the specified vector-based LDM.
 
-    python ldm-query.py \
-        vector \
-            --corpus <corpus-name> \
-            --model <model-name> <embedding-size> <window-radius> \
-            --word "<word>"
-        
-    python ldm-query.py \
-        vector \
-            --corpus <corpus-name> \
-            --model <model-name> <embedding-size> <window-radius> \
-            --words-from-file "<path-to-file>" \
-            --output-file "<path-to-file>"
+```bash
+python ldm-query.py \
+    vector \
+        --corpus <corpus-name> \
+        --model <model-name> <embedding-size> <window-radius> \
+        --word "<word>"
+    
+python ldm-query.py \
+    vector \
+        --corpus <corpus-name> \
+        --model <model-name> <embedding-size> <window-radius> \
+        --words-from-file "<path-to-file>" \
+        --output-file "<path-to-file>"
+```
 
 Required options:
 -   `--corpus`.
@@ -357,6 +396,7 @@ Output:
 -   If the `--words-from-file` option is used, the output will be a matrix in CSV format.  The first column will be 
     "Word" and the remaining columns will be the entries in the vector.
     
+
 Example:
 
 
@@ -365,31 +405,33 @@ Usage: `compare` mode
 
 Returns the comparison score between the specified words in the specified LDM.
 
-    python ldm-query.py \
-        compare \
-            --corpus <corpus-name> \
-            --model <model-name> <embedding-size> <window-radius> \
-            --distance <distance-type> \
-            --combinator <combinator-type> \
-            --word-pair "<first-word>" "<second-word>"
-        
-    python ldm-query.py \
-        compare \
-            --corpus <corpus-name> \
-            --model <model-name> <embedding-size> <window-radius> \
-            --distance <distance-type> \
-            --combinator <combinator-type> \
-            --word-pairs-from-file "<path-to-file>" \
-            --output-file "<path-to-file>"
-        
-    python ldm-query.py \
-        compare \
-            --corpus <corpus-name> \
-            --model <model-name> <embedding-size> <window-radius> \
-            --distance <distance-type> \
-            --combinator <combinator-type> \
-            --words-from-file "<path-to-file>" \
-            --output-file "<path-to-file>"
+```bash
+python ldm-query.py \
+    compare \
+        --corpus <corpus-name> \
+        --model <model-name> <embedding-size> <window-radius> \
+        --distance <distance-type> \
+        --combinator <combinator-type> \
+        --word-pair "<first-word>" "<second-word>"
+    
+python ldm-query.py \
+    compare \
+        --corpus <corpus-name> \
+        --model <model-name> <embedding-size> <window-radius> \
+        --distance <distance-type> \
+        --combinator <combinator-type> \
+        --word-pairs-from-file "<path-to-file>" \
+        --output-file "<path-to-file>"
+    
+python ldm-query.py \
+    compare \
+        --corpus <corpus-name> \
+        --model <model-name> <embedding-size> <window-radius> \
+        --distance <distance-type> \
+        --combinator <combinator-type> \
+        --words-from-file "<path-to-file>" \
+        --output-file "<path-to-file>"
+```
 
 Required options:
 -   `--corpus`.
@@ -414,6 +456,7 @@ Output:
     column and other columns corresponding to each word provided, with entries being the pairwise comparison of those 
     words in the model.
     
+
 Example:
 
 
